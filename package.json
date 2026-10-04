@@ -1,0 +1,47 @@
+{
+  "name": "archives-scoutes",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt build && wrangler dev",
+    "deploy": "nuxt build && wrangler d1 migrations apply DB --remote && wrangler deploy",
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "db:generate": "nuxt db generate",
+    "cli": "node bin/archives-scoutes.mjs"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.18.0",
+    "@nuxt/ui": "^4.11.3",
+    "@nuxthub/core": "^0.10.8",
+    "@simplewebauthn/browser": "^11.0.0",
+    "@simplewebauthn/server": "^11.0.0",
+    "drizzle-orm": "^0.45.3",
+    "nuxt": "^4.5.2",
+    "nuxt-auth-utils": "^0.5.30",
+    "tailwindcss": "^4.3.3",
+    "ulid": "^3.0.2",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "drizzle-kit": "^0.31.11",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3",
+    "vue-tsc": "^3.2.9",
+    "wrangler": "^4.147.0"
+  },
+  "description": "Archives de groupe scout — Nuxt 4, Nuxt UI, Cloudflare (Workers, D1, R2)",
+  "bin": {
+    "archives-scoutes": "bin/archives-scoutes.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

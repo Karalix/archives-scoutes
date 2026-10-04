@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+:root {
+  --ui-radius: 0.5rem;
+}
+
+/* Focus visible renforcé (RGAA / WCAG 2.2) */
+:focus-visible {
+  outline: 3px solid var(--ui-primary);
+  outline-offset: 2px;
+}
+
+.prose-lite p { margin: 0 0 0.75rem; }
+.prose-lite a { color: var(--ui-primary); text-decoration: underline; }
