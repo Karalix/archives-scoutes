@@ -15,44 +15,56 @@ const groups = computed(() => {
   return [...map.entries()].map(([d, ys]) => ({ label: `Années ${d}`, years: ys }))
 })
 
+const span = computed(() => {
+  const l = years.value ?? []
+  return l.length ? `${l.at(-1)!.startYear} – ${l[0]!.startYear + 1}` : ''
+})
+
 useSeoMeta({ description: () => site.value?.intro?.slice(0, 160) || `Archives de ${site.value?.name}` })
 </script>
 
 <template>
-  <UContainer class="py-8 sm:py-12 space-y-10">
-    <section class="max-w-3xl">
-      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">
-        {{ site?.name }}
-      </h1>
-      <!-- eslint-disable-next-line vue/no-v-html -- miniMarkdown échappe tout le HTML -->
-      <div v-if="site?.intro" class="prose-lite mt-4 text-lg text-muted" v-html="miniMarkdown(site.intro)" />
-      <p v-else class="mt-4 text-lg text-muted">
-        Photos, montages vidéo de camps, chants, carnets et journaux du groupe, classés par année scoute.
+  <PublicWall class="pt-16 sm:pt-24 space-y-20 sm:space-y-28">
+    <section class="grid gap-10 md:grid-cols-12">
+      <div class="md:col-span-8">
+        <p class="label mb-6">
+          Archives{{ span ? ` · ${span}` : '' }}
+        </p>
+        <h1 class="text-5xl sm:text-7xl lg:text-8xl font-light tracking-[-0.03em] leading-[0.95]">
+          {{ site?.name }}
+        </h1>
+      </div>
+      <div class="md:col-span-4 md:pt-14 text-muted leading-relaxed">
+        <!-- eslint-disable-next-line vue/no-v-html -- miniMarkdown échappe tout le HTML -->
+        <div v-if="site?.intro" class="prose-lite" v-html="miniMarkdown(site.intro)" />
+        <p v-else>
+          Photographies, montages vidéo de camps, chants, carnets et journaux, classés par année scoute.
+        </p>
+      </div>
+    </section>
+
+    <section v-if="!years?.length" class="border-t border-default pt-8">
+      <p class="label">
+        Aucune archive publiée pour l'instant
       </p>
     </section>
 
-    <section v-if="!years?.length" class="text-center py-16 text-muted">
-      <UIcon name="i-lucide-archive" class="size-12 mx-auto mb-3" />
-      <p>Aucune archive publiée pour l'instant.</p>
-    </section>
-
-    <section v-for="g in groups" :key="g.label ?? 'all'" :aria-labelledby="g.label ? `d-${g.label}` : undefined">
-      <h2 v-if="g.label" :id="`d-${g.label}`" class="text-xl font-semibold mb-4">
-        {{ g.label }}
-      </h2>
-      <h2 v-else class="sr-only">
-        Frise des années
-      </h2>
-      <ul class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+    <section v-for="g in groups" :key="g.label ?? 'all'" class="space-y-8">
+      <div class="flex items-baseline justify-between border-t border-(--ui-border-accented) pt-4">
+        <h2 class="label text-default!">
+          {{ g.label ?? 'Les années' }}
+        </h2>
+        <span class="label">{{ g.years.length }}</span>
+      </div>
+      <ul class="grid gap-x-8 gap-y-14 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         <li v-for="y in g.years" :key="y.startYear">
           <PublicYearCard :year="y" />
         </li>
       </ul>
     </section>
 
-    <p v-if="years?.some(y => y.locked)" class="text-sm text-muted flex items-start gap-2">
-      <UIcon name="i-lucide-shield" class="size-4 mt-0.5 shrink-0" />
-      Pour protéger les jeunes, les années récentes ne sont visibles qu'avec le mot de passe annuel transmis aux familles.
+    <p v-if="years?.some(y => y.locked)" class="text-sm text-muted max-w-xl">
+      Les années récentes sont réservées aux familles du groupe : leurs images ne sont pas exposées publiquement tant que les jeunes sont mineurs.
     </p>
-  </UContainer>
+  </PublicWall>
 </template>

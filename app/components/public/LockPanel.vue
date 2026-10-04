@@ -5,24 +5,25 @@ const { ask } = useUnlock()
 </script>
 
 <template>
-  <div class="rounded-xl border border-dashed border-default p-8 text-center max-w-xl mx-auto">
-    <UIcon name="i-lucide-lock" class="size-12 text-primary mx-auto" />
-    <h2 class="mt-4 text-xl font-semibold">
-      Archives récentes
-    </h2>
-    <p class="mt-2 text-muted">
-      <template v-if="count !== undefined">
-        {{ label }} contient {{ count }} document{{ count > 1 ? 's' : '' }}.
-      </template>
-      <template v-if="notCovered">
-        Votre mot de passe ne couvre pas cette année : saisissez celui d'une année plus récente.
-      </template>
-      <template v-else>
-        Pour protéger les jeunes, leurs images ne sont visibles qu'avec le mot de passe annuel transmis aux familles.
-      </template>
+  <section class="border-t border-(--ui-border-accented) pt-8 grid gap-8 md:grid-cols-12">
+    <p class="label md:col-span-3">
+      Accès réservé
     </p>
-    <UButton class="mt-6" size="lg" icon="i-lucide-lock-open" @click="ask()">
-      Saisir le mot de passe
-    </UButton>
-  </div>
+    <div class="md:col-span-7 space-y-5">
+      <p v-if="count !== undefined" class="text-2xl font-light tracking-tight">
+        {{ label?.replace('-', '–') }} — {{ count }} document{{ count > 1 ? 's' : '' }}.
+      </p>
+      <p class="text-muted max-w-xl leading-relaxed">
+        <template v-if="notCovered">
+          Votre mot de passe ne couvre pas cette année. Saisissez celui d'une année plus récente.
+        </template>
+        <template v-else>
+          Pour protéger les jeunes, les années récentes ne sont visibles qu'avec le mot de passe annuel transmis aux familles du groupe.
+        </template>
+      </p>
+      <UButton color="neutral" size="lg" @click="ask()">
+        Saisir le mot de passe
+      </UButton>
+    </div>
+  </section>
 </template>

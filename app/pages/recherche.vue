@@ -32,31 +32,39 @@ useHead({ title: 'Recherche', meta: [{ name: 'robots', content: 'noindex' }] })
 </script>
 
 <template>
-  <UContainer class="py-8 space-y-6">
-    <h1 class="text-3xl font-bold">
-      Recherche
-    </h1>
-    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <UInput v-model="q" icon="i-lucide-search" placeholder="Titre, lieu, description, mot-clé…" size="lg" class="sm:col-span-2 lg:col-span-1" aria-label="Rechercher" autofocus />
-      <USelect v-model="place" :items="placeItems" size="lg" aria-label="Lieu de camp" />
-      <USelect v-model="kind" :items="kindItems" size="lg" aria-label="Type" />
-      <USelect v-model="branch" :items="branchItems" size="lg" aria-label="Branche" />
-    </div>
-    <p class="text-sm text-muted" aria-live="polite">
+  <PublicWall class="pt-14 sm:pt-20 space-y-12">
+    <header class="space-y-8">
+      <p class="label">
+        Recherche
+      </p>
+      <input
+        v-model="q"
+        type="search"
+        placeholder="Titre, lieu, mot-clé…"
+        aria-label="Rechercher"
+        autofocus
+        class="w-full bg-transparent border-b border-(--ui-border-accented) pb-3 text-4xl sm:text-6xl font-light tracking-tight outline-none placeholder:text-dimmed focus-visible:outline-none"
+      >
+      <div class="flex flex-wrap gap-3 border-b border-default pb-3">
+        <USelect v-model="place" :items="placeItems" variant="none" class="w-56" aria-label="Lieu de camp" />
+        <USelect v-model="kind" :items="kindItems" variant="none" class="w-44" aria-label="Type" />
+        <USelect v-model="branch" :items="branchItems" variant="none" class="w-56" aria-label="Branche" />
+      </div>
+    </header>
+    <p class="label" aria-live="polite">
       <template v-if="pending">
         Recherche…
       </template>
       <template v-else>
-        {{ data?.results.length ?? 0 }} résultat{{ (data?.results.length ?? 0) > 1 ? 's' : '' }}
-        <template v-if="!site?.family">
-          · les archives récentes n'apparaissent qu'avec le mot de passe annuel
+        {{ data?.results.length ?? 0 }} résultat{{ (data?.results.length ?? 0) > 1 ? 's' : '' }}<template v-if="!site?.family">
+          · archives récentes exclues sans mot de passe
         </template>
       </template>
     </p>
-    <ul class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <ul class="grid gap-x-6 gap-y-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <li v-for="d in data?.results ?? []" :key="d.id">
         <PublicDocCard :doc="d" show-year />
       </li>
     </ul>
-  </UContainer>
+  </PublicWall>
 </template>

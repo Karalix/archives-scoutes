@@ -4,8 +4,9 @@ useHead({ title: 'Confidentialité' })
 </script>
 
 <template>
-  <UContainer class="py-8 max-w-3xl space-y-4">
-    <h1 class="text-3xl font-bold">
+  <PublicWall class="pt-14 sm:pt-20">
+    <div class="max-w-2xl space-y-5 leading-relaxed">
+    <h1 class="text-4xl sm:text-5xl font-light tracking-tight pb-6">
       Politique de confidentialité
     </h1>
     <!-- eslint-disable-next-line vue/no-v-html -- miniMarkdown échappe tout le HTML -->
@@ -15,5 +16,6 @@ useHead({ title: 'Confidentialité' })
       <p>Aucun compte visiteur n'existe. Les adresses IP ne sont conservées que sous forme hachée, 30 jours au plus, pour la sécurité (limitation des tentatives).</p>
       <p>Les formulaires de signalement ne servent qu'au traitement de votre demande.</p>
     </template>
-  </UContainer>
+    </div>
+  </PublicWall>
 </template>

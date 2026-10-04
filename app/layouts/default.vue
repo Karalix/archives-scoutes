@@ -3,75 +3,91 @@ const { data: site } = await useSite()
 const { ask } = useUnlock()
 const route = useRoute()
 const toast = useToast()
+const menu = ref(false)
 
 async function lock() {
   await $fetch('/api/access/lock', { method: 'POST' })
-  toast.add({ title: 'Archives récentes verrouillées sur cet appareil', icon: 'i-lucide-lock' })
+  toast.add({ title: 'Archives récentes verrouillées sur cet appareil' })
   await refreshNuxtData()
 }
 
-const nav = computed(() => [
-  { label: 'Années', to: '/', icon: 'i-lucide-calendar-range', active: route.path === '/' || route.path.startsWith('/annee') },
-  { label: 'Recherche', to: '/recherche', icon: 'i-lucide-search' },
-])
+watch(() => route.fullPath, () => { menu.value = false })
+
+const links = [
+  { label: 'Années', to: '/' },
+  { label: 'Recherche', to: '/recherche' },
+]
+const isActive = (to: string) => to === '/' ? (route.path === '/' || route.path.startsWith('/annee')) : route.path.startsWith(to)
 </script>
 
 <template>
-  <div class="min-h-dvh flex flex-col bg-default">
-    <UHeader :to="'/'" :title="site?.name" mode="slideover">
-      <template #title>
-        <span class="flex items-center gap-2 min-w-0">
-          <img v-if="site?.logoUrl" :src="site.logoUrl" alt="" class="h-8 w-8 rounded object-contain">
-          <img v-else src="/icon.svg" alt="" class="h-8 w-8">
-          <span class="truncate font-semibold">{{ site?.name }}</span>
-        </span>
-      </template>
+  <div class="min-h-dvh flex flex-col bg-default text-default">
+    <a href="#contenu" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-default focus:px-3 focus:py-2">Aller au contenu</a>
+    <header class="border-b border-default">
+      <div class="mx-auto max-w-[96rem] px-4 sm:px-8 lg:px-12 h-18 flex items-center gap-6">
+        <NuxtLink to="/" class="flex items-center gap-3 min-w-0">
+          <img v-if="site?.logoUrl" :src="site.logoUrl" alt="" class="h-7 w-7 object-contain grayscale">
+          <span class="truncate text-[0.95rem] font-medium tracking-tight">{{ site?.name }}</span>
+        </NuxtLink>
+        <nav class="ml-auto hidden sm:flex items-center gap-8 text-sm" aria-label="Navigation principale">
+          <NuxtLink
+            v-for="l in links"
+            :key="l.to"
+            :to="l.to"
+            class="py-1 border-b transition-colors"
+            :class="isActive(l.to) ? 'border-(--ui-border-accented)' : 'border-transparent text-muted hover:text-default'"
+          >
+            {{ l.label }}
+          </NuxtLink>
+          <button v-if="site?.family" class="text-muted hover:text-default" @click="lock">
+            Verrouiller · {{ scoutYearLabel(site.family.maxYear) }}
+          </button>
+          <button v-else class="text-muted hover:text-default" @click="ask()">
+            Archives récentes
+          </button>
+          <NuxtLink v-if="site?.admin" to="/admin" class="text-muted hover:text-default">
+            Administration
+          </NuxtLink>
+          <UColorModeButton color="neutral" variant="link" size="sm" />
+        </nav>
+        <button class="ml-auto sm:hidden text-sm" :aria-expanded="menu" aria-controls="menu-mobile" @click="menu = !menu">
+          {{ menu ? 'Fermer' : 'Menu' }}
+        </button>
+      </div>
+      <nav v-if="menu" id="menu-mobile" class="sm:hidden border-t border-default px-4 py-6 flex flex-col gap-5 text-lg" aria-label="Navigation principale">
+        <NuxtLink v-for="l in links" :key="l.to" :to="l.to">
+          {{ l.label }}
+        </NuxtLink>
+        <button v-if="site?.family" class="text-left" @click="lock">
+          Verrouiller les archives récentes
+        </button>
+        <button v-else class="text-left" @click="ask()">
+          Archives récentes — mot de passe
+        </button>
+        <NuxtLink v-if="site?.admin" to="/admin">
+          Administration
+        </NuxtLink>
+      </nav>
+    </header>
 
-      <UNavigationMenu :items="nav" variant="link" />
-
-      <template #right>
-        <UTooltip v-if="site?.family" :text="`Accès jusqu'à ${scoutYearLabel(site.family.maxYear)}`">
-          <UButton color="neutral" variant="ghost" icon="i-lucide-lock-open" aria-label="Verrouiller les archives récentes" @click="lock" />
-        </UTooltip>
-        <UButton v-else color="neutral" variant="ghost" icon="i-lucide-lock" class="hidden sm:inline-flex" @click="ask()">
-          Archives récentes
-        </UButton>
-        <UColorModeButton />
-        <UButton v-if="site?.admin" to="/admin" color="neutral" variant="ghost" icon="i-lucide-settings" aria-label="Administration" />
-      </template>
-
-      <template #body>
-        <UNavigationMenu :items="nav" orientation="vertical" class="-mx-2.5" />
-        <USeparator class="my-4" />
-        <UButton v-if="!site?.family" block icon="i-lucide-lock" @click="ask()">
-          Saisir le mot de passe annuel
-        </UButton>
-        <UButton v-else block color="neutral" variant="outline" icon="i-lucide-lock-open" @click="lock">
-          Verrouiller (accès jusqu'à {{ scoutYearLabel(site.family.maxYear) }})
-        </UButton>
-      </template>
-    </UHeader>
-
-    <UMain class="flex-1">
+    <main id="contenu" class="flex-1">
       <slot />
-    </UMain>
+    </main>
 
-    <USeparator />
-    <UFooter>
-      <template #left>
-        <p class="text-sm text-muted">
-          {{ site?.name }} · archives du groupe
+    <footer class="border-t border-default mt-24">
+      <div class="mx-auto max-w-[96rem] px-4 sm:px-8 lg:px-12 py-10 grid gap-6 sm:grid-cols-2 text-sm">
+        <p class="text-muted">
+          {{ site?.name }}<br>
+          Archives du groupe, classées par année scoute.
         </p>
-      </template>
-      <template #right>
-        <nav class="flex flex-wrap gap-x-4 gap-y-1 text-sm" aria-label="Pied de page">
+        <nav class="flex flex-wrap sm:justify-end gap-x-6 gap-y-2" aria-label="Pied de page">
           <NuxtLink to="/mentions-legales" class="text-muted hover:text-default">Mentions légales</NuxtLink>
           <NuxtLink to="/confidentialite" class="text-muted hover:text-default">Confidentialité</NuxtLink>
           <a v-if="site?.contactEmail" :href="`mailto:${site.contactEmail}`" class="text-muted hover:text-default">Contact</a>
           <NuxtLink to="/admin" class="text-muted hover:text-default">Administration</NuxtLink>
         </nav>
-      </template>
-    </UFooter>
+      </div>
+    </footer>
 
     <PublicUnlockModal />
   </div>

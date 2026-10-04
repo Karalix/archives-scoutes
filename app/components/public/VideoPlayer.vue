@@ -63,7 +63,7 @@ defineExpose({ video, seek })
 
 <template>
   <div class="space-y-3">
-    <div class="relative overflow-hidden rounded-lg bg-black">
+    <div class="relative overflow-hidden bg-black">
       <video
         ref="video"
         :src="src"
@@ -81,8 +81,8 @@ defineExpose({ video, seek })
         <track v-if="captions" kind="subtitles" srclang="fr" label="Français" :src="captions" default>
       </video>
       <div v-if="resumeAt" class="absolute inset-x-0 bottom-14 flex justify-center">
-        <div class="flex gap-2 rounded-lg bg-black/75 p-2 text-white">
-          <UButton size="sm" icon="i-lucide-rotate-ccw" @click="resume">
+        <div class="flex gap-2 bg-black/80 p-2 text-white">
+          <UButton size="sm" color="neutral" @click="resume">
             Reprendre à {{ formatDuration(resumeAt) }}
           </UButton>
           <UButton size="sm" color="neutral" variant="ghost" class="text-white" @click="resumeAt = null">
@@ -95,17 +95,18 @@ defineExpose({ video, seek })
       <USelect
         v-model="rate"
         :items="[0.5, 0.75, 1, 1.25, 1.5, 2].map(v => ({ label: `Vitesse ×${String(v).replace('.', ',')}`, value: v }))"
+        variant="none"
         class="w-40"
         aria-label="Vitesse de lecture"
       />
     </div>
     <div v-if="chapters?.length" class="space-y-1">
-      <h3 class="text-sm font-medium text-muted">
+      <h3 class="label">
         Chapitres
       </h3>
       <ol class="flex flex-wrap gap-2">
         <li v-for="c in chapters" :key="c.start">
-          <UButton size="sm" color="neutral" variant="soft" @click="seek(c.start)">
+          <UButton size="sm" color="neutral" variant="outline" @click="seek(c.start)">
             <span class="tabular-nums text-muted">{{ formatDuration(c.start) || '0:00' }}</span> {{ c.title }}
           </UButton>
         </li>

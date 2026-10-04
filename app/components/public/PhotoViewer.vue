@@ -32,7 +32,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 <template>
   <div class="relative select-none">
     <div
-      class="relative overflow-auto rounded-lg bg-black flex items-center justify-center"
+      class="relative overflow-auto bg-muted flex items-center justify-center py-6 sm:py-12"
       :class="zoomed ? 'max-h-[85dvh] cursor-zoom-out' : 'cursor-zoom-in'"
       @touchstart.passive="onTouchStart"
       @touchend.passive="onTouchEnd"
@@ -42,26 +42,28 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         :alt="alt"
         draggable="false"
         class="transition-[max-width] duration-200"
-        :class="zoomed ? 'max-w-none w-[200%] sm:w-auto' : 'max-h-[80dvh] w-auto max-w-full'"
+        :class="zoomed ? 'max-w-none w-[200%] sm:w-auto' : 'max-h-[78dvh] w-auto max-w-full shadow-[0_1px_2px_rgba(0,0,0,0.08)]'"
         @click="zoomed = !zoomed"
         @contextmenu.prevent
       >
     </div>
     <UButton
       v-if="prevId"
-      icon="i-lucide-chevron-left"
+      icon="i-lucide-arrow-left"
       color="neutral"
-      variant="solid"
-      class="absolute left-2 top-1/2 -translate-y-1/2 rounded-full opacity-80"
+      variant="link"
+      size="xl"
+      class="absolute left-1 top-1/2 -translate-y-1/2"
       aria-label="Photo précédente"
       @click="go(prevId)"
     />
     <UButton
       v-if="nextId"
-      icon="i-lucide-chevron-right"
+      icon="i-lucide-arrow-right"
       color="neutral"
-      variant="solid"
-      class="absolute right-2 top-1/2 -translate-y-1/2 rounded-full opacity-80"
+      variant="link"
+      size="xl"
+      class="absolute right-1 top-1/2 -translate-y-1/2"
       aria-label="Photo suivante"
       @click="go(nextId)"
     />

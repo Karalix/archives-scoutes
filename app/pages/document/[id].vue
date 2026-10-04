@@ -32,33 +32,35 @@ useSeoMeta({
 </script>
 
 <template>
-  <UContainer class="py-6 sm:py-8">
-    <div v-if="status === 401" class="py-8">
+  <PublicWall class="pt-10 sm:pt-14">
+    <div v-if="status === 401" class="pt-10">
       <PublicLockPanel :not-covered="lockInfo?.reason === 'yearNotCovered'" />
     </div>
-    <div v-else-if="error" class="text-center py-16">
-      <p class="text-lg">
+    <div v-else-if="error" class="border-t border-default pt-8 space-y-6">
+      <p class="text-2xl font-light">
         {{ apiError(error) }}
       </p>
-      <UButton to="/" class="mt-4" variant="outline">
-        Retour aux années
+      <UButton to="/" color="neutral" variant="outline">
+        Toutes les années
       </UButton>
     </div>
 
-    <article v-else-if="doc" class="space-y-6">
-      <UBreadcrumb
-        :items="[
-          { label: 'Années', to: '/' },
-          { label: scoutYearLabel(doc.yearStart), to: `/annee/${doc.yearStart}` },
-          ...(doc.event ? [{ label: doc.event.title }] : []),
-        ]"
-      />
+    <article v-else-if="doc" class="space-y-12">
+      <nav class="text-sm text-muted flex flex-wrap gap-x-2" aria-label="Fil d'Ariane">
+        <NuxtLink to="/" class="hover:text-default">Années</NuxtLink>
+        <span aria-hidden="true">/</span>
+        <NuxtLink :to="`/annee/${doc.yearStart}`" class="hover:text-default">{{ scoutYearLabel(doc.yearStart).replace('-', '–') }}</NuxtLink>
+        <template v-if="doc.event">
+          <span aria-hidden="true">/</span>
+          <span>{{ doc.event.title }}</span>
+        </template>
+      </nav>
 
       <div v-if="doc.kind === 'video'">
         <iframe
           v-if="doc.streamUrl"
           :src="doc.streamUrl"
-          class="w-full aspect-video rounded-lg"
+          class="w-full aspect-video"
           allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen"
           allowfullscreen
           :title="doc.title"
@@ -77,99 +79,61 @@ useSeoMeta({
       <ClientOnly v-else-if="doc.kind === 'pdf' && doc.mainUrl">
         <PublicPdfViewer :src="doc.mainUrl" />
       </ClientOnly>
-      <div v-else-if="doc.kind === 'audio' && doc.mainUrl" class="rounded-lg bg-elevated p-6 flex flex-col sm:flex-row gap-4 items-center">
-        <img v-if="doc.thumbUrl" :src="doc.thumbUrl" alt="" class="size-32 rounded object-cover">
-        <UIcon v-else name="i-lucide-music" class="size-16 text-primary" />
+      <div v-else-if="doc.kind === 'audio' && doc.mainUrl" class="bg-muted p-8 sm:p-12 flex flex-col sm:flex-row gap-8 items-center">
+        <img v-if="doc.thumbUrl" :src="doc.thumbUrl" alt="" class="size-40 object-cover">
         <audio :src="doc.mainUrl" controls preload="metadata" class="w-full" :controlslist="doc.canDownload ? undefined : 'nodownload'" />
       </div>
-      <p v-else class="text-muted">
-        Fichier en cours de préparation.
+      <p v-else class="label">
+        Fichier en cours de préparation
       </p>
 
-      <div class="grid gap-6 lg:grid-cols-3">
-        <div class="lg:col-span-2 space-y-3">
-          <h1 class="text-2xl sm:text-3xl font-bold">
+      <div class="grid gap-10 lg:grid-cols-12 border-t border-(--ui-border-accented) pt-8">
+        <!-- Cartel (F-09) -->
+        <div class="lg:col-span-4 space-y-6">
+          <h1 class="text-3xl sm:text-4xl font-light tracking-tight leading-tight">
             {{ doc.title }}
           </h1>
-          <p v-if="doc.description" class="whitespace-pre-line text-muted">
+          <dl class="text-sm space-y-3">
+            <div v-for="row in [
+              ['Année', scoutYearLabel(doc.yearStart).replace('-', '–')],
+              ['Événement', doc.event?.title],
+              ['Date', dateLabel],
+              ['Lieu', doc.place],
+              ['Branche', branchLabel(site, doc.branch)],
+              ['Durée', doc.duration ? formatDuration(doc.duration) : ''],
+              ['Support', KIND_LABELS[doc.kind]],
+              ['Crédits', doc.credits],
+              ['Personnes', doc.people],
+            ].filter(r => r[1])" :key="row[0]" class="grid grid-cols-[7rem_1fr] gap-4 border-b border-default pb-3">
+              <dt class="label pt-0.5">
+                {{ row[0] }}
+              </dt>
+              <dd>
+                <NuxtLink v-if="row[0] === 'Lieu'" :to="{ path: '/recherche', query: { lieu: doc.place } }" class="link-quiet">{{ row[1] }}</NuxtLink>
+                <NuxtLink v-else-if="row[0] === 'Année'" :to="`/annee/${doc.yearStart}`" class="link-quiet">{{ row[1] }}</NuxtLink>
+                <template v-else>{{ row[1] }}</template>
+              </dd>
+            </div>
+          </dl>
+        </div>
+        <div class="lg:col-span-6 lg:col-start-6 space-y-6">
+          <p v-if="doc.description" class="text-lg leading-relaxed whitespace-pre-line">
             {{ doc.description }}
           </p>
-          <div v-if="doc.tags.length" class="flex flex-wrap gap-2">
-            <UBadge v-for="t in doc.tags" :key="t" color="neutral" variant="subtle">
-              {{ t }}
-            </UBadge>
-          </div>
-        </div>
-        <aside class="space-y-4">
-          <!-- F-09 : métadonnées -->
-          <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-            <dt class="text-muted">
-              Année
-            </dt>
-            <dd><NuxtLink :to="`/annee/${doc.yearStart}`" class="underline">{{ scoutYearLabel(doc.yearStart) }}</NuxtLink></dd>
-            <template v-if="doc.event">
-              <dt class="text-muted">
-                Événement
-              </dt>
-              <dd>{{ doc.event.title }}</dd>
-            </template>
-            <template v-if="dateLabel">
-              <dt class="text-muted">
-                Date
-              </dt>
-              <dd>{{ dateLabel }}</dd>
-            </template>
-            <template v-if="doc.place">
-              <dt class="text-muted">
-                Lieu
-              </dt>
-              <dd><NuxtLink :to="{ path: '/recherche', query: { lieu: doc.place } }" class="underline">{{ doc.place }}</NuxtLink></dd>
-            </template>
-            <template v-if="doc.branch">
-              <dt class="text-muted">
-                Branche
-              </dt>
-              <dd>{{ branchLabel(site, doc.branch) }}</dd>
-            </template>
-            <template v-if="doc.duration">
-              <dt class="text-muted">
-                Durée
-              </dt>
-              <dd class="tabular-nums">
-                {{ formatDuration(doc.duration) }}
-              </dd>
-            </template>
-            <template v-if="doc.credits">
-              <dt class="text-muted">
-                Crédits
-              </dt>
-              <dd>{{ doc.credits }}</dd>
-            </template>
-            <template v-if="doc.people">
-              <dt class="text-muted">
-                Personnes
-              </dt>
-              <dd>{{ doc.people }}</dd>
-            </template>
-          </dl>
-          <div class="flex flex-wrap gap-2">
-            <UButton v-if="doc.downloadUrl" :to="doc.downloadUrl" external icon="i-lucide-download" color="neutral" variant="outline">
-              Télécharger
-            </UButton>
-            <UButton icon="i-lucide-flag" color="neutral" variant="ghost" @click="reportOpen = true">
-              Signaler / demander un retrait
-            </UButton>
-            <UButton v-if="doc.isAdmin" :to="`/admin/documents/${doc.id}`" icon="i-lucide-pencil" color="neutral" variant="ghost">
-              Modifier
-            </UButton>
-          </div>
-          <p v-if="doc.protected" class="text-xs text-muted flex gap-1.5">
-            <UIcon name="i-lucide-lock" class="size-3.5 mt-0.5 shrink-0" />
-            Archive récente : consultation en ligne uniquement, merci de ne pas la diffuser.
+          <p v-if="doc.tags.length" class="cartel-meta">
+            {{ doc.tags.join(', ') }}
           </p>
-        </aside>
+          <div class="flex flex-wrap gap-x-6 gap-y-3 text-sm pt-2">
+            <a v-if="doc.downloadUrl" :href="doc.downloadUrl" class="link-quiet">Télécharger</a>
+            <button class="link-quiet text-muted" @click="reportOpen = true">Signaler / demander un retrait</button>
+            <NuxtLink v-if="doc.isAdmin" :to="`/admin/documents/${doc.id}`" class="link-quiet text-muted">Modifier</NuxtLink>
+          </div>
+          <p v-if="doc.protected" class="cartel-meta max-w-md">
+            Archive récente : consultation en ligne uniquement. Merci de ne pas la diffuser.
+          </p>
+        </div>
       </div>
       <PublicReportModal v-model:open="reportOpen" :document-id="doc.id" :delay-days="site?.takedownDelayDays" />
     </article>
-  </UContainer>
+  </PublicWall>
 </template>

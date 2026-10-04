@@ -13,7 +13,7 @@ async function submit() {
     const r = await $fetch<{ label: string }>('/api/access/unlock', { method: 'POST', body: { password: password.value } })
     open.value = false
     password.value = ''
-    toast.add({ title: 'Archives déverrouillées', description: `Accès jusqu'à l'année ${r.label}.`, color: 'success', icon: 'i-lucide-lock-open' })
+    toast.add({ title: 'Archives déverrouillées', description: `Accès jusqu'à l'année ${r.label}.`, color: 'neutral' })
     await refreshNuxtData()
   }
   catch (e) {
@@ -35,7 +35,7 @@ async function submit() {
         <UFormField label="Mot de passe annuel" help="Il vous a été transmis par le groupe (ex. castor-boussole-feu-2026)." :error="error ?? undefined">
           <UInput v-model="password" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" size="xl" class="w-full" autofocus />
         </UFormField>
-        <UButton type="submit" block size="lg" :loading="loading" :disabled="!password" icon="i-lucide-lock-open">
+        <UButton type="submit" block size="lg" color="neutral" :loading="loading" :disabled="!password">
           Déverrouiller
         </UButton>
         <p class="text-xs text-dimmed">

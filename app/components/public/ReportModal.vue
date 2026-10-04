@@ -43,8 +43,7 @@ async function send() {
   <UModal v-model:open="open" title="Signaler ce document">
     <template #body>
       <div v-if="done" class="space-y-3 text-center py-4">
-        <UIcon name="i-lucide-check-circle" class="size-10 text-success mx-auto" />
-        <p>Merci, votre demande a été transmise aux responsables des archives.</p>
+                <p>Merci, votre demande a été transmise aux responsables des archives.</p>
         <p v-if="kind === 'takedown' && delayDays" class="text-sm text-muted">
           Les demandes de retrait sont traitées sous {{ delayDays }} jours.
         </p>
@@ -69,7 +68,7 @@ async function send() {
         <p v-if="error" class="text-sm text-error">
           {{ error }}
         </p>
-        <UButton type="submit" block :loading="sending" :disabled="message.trim().length < 5">
+        <UButton type="submit" block color="neutral" :loading="sending" :disabled="message.trim().length < 5">
           Envoyer
         </UButton>
       </form>

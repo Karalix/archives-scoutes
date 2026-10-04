@@ -66,19 +66,19 @@ onBeforeUnmount(() => {
 <template>
   <div class="space-y-2">
     <div class="flex items-center gap-2">
-      <UButton color="neutral" variant="outline" icon="i-lucide-zoom-out" aria-label="Dézoomer" @click="zoom(-0.25)" />
+      <UButton color="neutral" variant="ghost" icon="i-lucide-minus" aria-label="Dézoomer" @click="zoom(-0.25)" />
       <span class="text-sm tabular-nums w-14 text-center">{{ Math.round(scale * 100) }} %</span>
-      <UButton color="neutral" variant="outline" icon="i-lucide-zoom-in" aria-label="Zoomer" @click="zoom(0.25)" />
+      <UButton color="neutral" variant="ghost" icon="i-lucide-plus" aria-label="Zoomer" @click="zoom(0.25)" />
       <span v-if="pages" class="text-sm text-muted ml-auto">{{ pages }} page{{ pages > 1 ? 's' : '' }}</span>
     </div>
-    <div ref="container" class="max-h-[85dvh] overflow-auto rounded-lg bg-accented p-2 space-y-2">
+    <div ref="container" class="max-h-[85dvh] overflow-auto bg-muted p-4 sm:p-10 space-y-6">
       <p v-if="loading" class="p-8 text-center text-muted">
         Chargement du document…
       </p>
       <p v-if="error" class="p-8 text-center text-error">
         {{ error }}
       </p>
-      <canvas v-for="n in pages" :key="`${n}-${scale}`" :data-page="n" class="mx-auto block bg-white shadow" :aria-label="`Page ${n}`" />
+      <canvas v-for="n in pages" :key="`${n}-${scale}`" :data-page="n" class="mx-auto block bg-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]" :aria-label="`Page ${n}`" />
     </div>
   </div>
 </template>

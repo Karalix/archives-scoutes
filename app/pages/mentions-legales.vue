@@ -4,8 +4,9 @@ useHead({ title: 'Mentions légales' })
 </script>
 
 <template>
-  <UContainer class="py-8 max-w-3xl space-y-4">
-    <h1 class="text-3xl font-bold">
+  <PublicWall class="pt-14 sm:pt-20">
+    <div class="max-w-2xl space-y-5 leading-relaxed">
+    <h1 class="text-4xl sm:text-5xl font-light tracking-tight pb-6">
       Mentions légales
     </h1>
     <!-- eslint-disable-next-line vue/no-v-html -- miniMarkdown échappe tout le HTML -->
@@ -13,7 +14,7 @@ useHead({ title: 'Mentions légales' })
     <p v-else class="text-muted">
       Les mentions légales de ce site n'ont pas encore été renseignées par le groupe.
     </p>
-    <h2 class="text-xl font-semibold pt-4">
+    <h2 class="label pt-8">
       Droit à l'image et demandes de retrait
     </h2>
     <p>
@@ -21,5 +22,6 @@ useHead({ title: 'Mentions légales' })
         ; vous pouvez aussi écrire à <a :href="`mailto:${data.contactEmail}`" class="underline">{{ data.contactEmail }}</a>
       </template>.
     </p>
-  </UContainer>
+    </div>
+  </PublicWall>
 </template>
