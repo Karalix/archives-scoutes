@@ -100,7 +100,7 @@ async function submit() {
         </UFormField>
         <UFormField label="Couleur principale">
           <div class="flex items-center gap-2">
-            <input v-model="form.primaryColor" type="color" aria-label="Couleur principale" class="h-9 w-12 cursor-pointer rounded border border-default bg-transparent">
+            <input v-model="form.primaryColor" type="color" aria-label="Couleur principale" class="h-9 w-12 cursor-pointer border border-default bg-transparent">
             <UInput v-model="form.primaryColor" class="w-28" />
           </div>
         </UFormField>
@@ -128,7 +128,7 @@ async function submit() {
       </UFormField>
       <UAlert
         color="info"
-        variant="subtle"
+        variant="outline"
         icon="i-lucide-shield"
         title="Pourquoi 10 ans par défaut ? (L-01)"
         :description="`Les archives montrent surtout des mineurs. Une année n'est publique que lorsque les jeunes qu'on y voit sont devenus majeurs : avec ${form.pivotOffset} ans, les années jusqu'à ${scoutYearLabel(pivotPreview)} sont publiques ; les suivantes demandent le mot de passe annuel des familles. Vérifiez ce choix avec la politique image de votre mouvement.`"

@@ -52,8 +52,8 @@ const userMenu = computed<DropdownMenuItem[][]>(() => [
       :ui="{ footer: 'lg:border-t lg:border-default' }"
     >
       <template #header="{ collapsed }">
-        <NuxtLink to="/admin" class="flex min-w-0 items-center gap-2 font-semibold">
-          <img v-if="site?.logoUrl" :src="site.logoUrl" alt="" class="size-7 shrink-0 rounded object-contain">
+        <NuxtLink to="/admin" class="flex min-w-0 items-center gap-2 text-sm tracking-[0.15em] uppercase">
+          <img v-if="site?.logoUrl" :src="site.logoUrl" alt="" class="size-7 shrink-0 object-contain">
           <UIcon v-else name="i-lucide-tent-tree" class="size-7 shrink-0 text-primary" />
           <span v-if="!collapsed" class="truncate">{{ site?.name ?? 'Archives' }}</span>
         </NuxtLink>

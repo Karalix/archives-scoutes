@@ -57,11 +57,11 @@ const late = (r: Report) => r.status === 'open' && Date.now() - r.createdAt > (s
       <USkeleton v-for="i in 3" :key="i" class="h-28" />
     </div>
     <UEmpty v-else-if="!sorted.length" icon="i-lucide-flag-off" title="Aucun signalement" description="Les demandes envoyées depuis les pages des documents apparaîtront ici." />
-    <div v-else class="space-y-3">
-      <UCard v-for="r in sorted" :key="r.id" :class="r.status !== 'open' ? 'opacity-75' : ''">
+    <div v-else class="border-b border-default">
+      <article v-for="r in sorted" :key="r.id" class="border-t border-default py-5" :class="r.status !== 'open' ? 'opacity-70' : ''">
         <div class="space-y-3">
           <div class="flex flex-wrap items-center gap-2">
-            <UBadge :color="STATUS[r.status].color" variant="subtle">
+            <UBadge :color="STATUS[r.status].color" variant="outline">
               {{ STATUS[r.status].label }}
             </UBadge>
             <UBadge color="neutral" variant="outline">
@@ -78,7 +78,7 @@ const late = (r: Report) => r.status === 'open' && Date.now() - r.createdAt > (s
               {{ r.document.title }}
             </NuxtLink>
             <span v-else class="text-muted">supprimé</span>
-            <UBadge v-if="r.document" color="neutral" variant="subtle" size="sm" class="ms-1">
+            <UBadge v-if="r.document" color="neutral" variant="outline" size="sm" class="ms-1">
               {{ VISIBILITY_LABELS[r.document.visibility] }}
             </UBadge>
           </p>
@@ -101,7 +101,7 @@ const late = (r: Report) => r.status === 'open' && Date.now() - r.createdAt > (s
             <UButton v-else label="Rouvrir" icon="i-lucide-rotate-ccw" size="sm" color="neutral" variant="ghost" :disabled="busy === r.id" @click="handle(r, 'open')" />
           </div>
         </div>
-      </UCard>
+      </article>
     </div>
   </AdminPage>
 </template>

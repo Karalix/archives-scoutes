@@ -53,8 +53,8 @@ async function onFile(e: Event) {
         <p class="mb-1 text-xs text-muted">
           Vignette actuelle
         </p>
-        <img v-if="thumbUrl" :src="thumbUrl" alt="Vignette actuelle" class="aspect-video w-full rounded-md bg-elevated object-cover">
-        <div v-else class="flex aspect-video items-center justify-center rounded-md bg-elevated text-sm text-muted">
+        <img v-if="thumbUrl" :src="thumbUrl" alt="Vignette actuelle" class="aspect-video w-full bg-elevated object-cover">
+        <div v-else class="flex aspect-video items-center justify-center bg-elevated text-sm text-muted">
           Aucune vignette
         </div>
       </div>
@@ -68,7 +68,7 @@ async function onFile(e: Event) {
           muted
           playsinline
           preload="auto"
-          class="aspect-video w-full rounded-md bg-black object-contain"
+          class="aspect-video w-full bg-black object-contain"
           @loadedmetadata="onMeta"
         />
       </div>

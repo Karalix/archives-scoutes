@@ -48,16 +48,16 @@ async function remove(id: string) {
     <p class="text-sm text-muted">
       Une passkey permet de se connecter avec l'empreinte, le visage ou le code de votre téléphone ou ordinateur, sans mot de passe. Ajoutez-en une par appareil.
     </p>
-    <UAlert v-if="!isSupported" color="warning" variant="subtle" icon="i-lucide-triangle-alert" title="Passkeys non prises en charge par ce navigateur" />
+    <UAlert v-if="!isSupported" color="warning" variant="outline" icon="i-lucide-triangle-alert" title="Passkeys non prises en charge par ce navigateur" />
 
     <UEmpty v-if="!pending && !keys?.length" icon="i-lucide-fingerprint" title="Aucune passkey" description="Vous vous connectez pour l'instant avec votre e-mail et votre mot de passe." />
-    <ul v-else class="divide-y divide-default rounded-lg border border-default">
+    <ul v-else class="divide-y divide-default border-y border-default">
       <li v-for="k in keys" :key="k.id" class="flex items-center gap-3 p-3">
         <UIcon name="i-lucide-key-round" class="size-5 text-muted" />
         <div class="min-w-0 flex-1">
           <p class="font-medium">
             {{ k.name }}
-            <UBadge v-if="k.backedUp" size="sm" color="success" variant="subtle" class="ms-1">
+            <UBadge v-if="k.backedUp" size="sm" color="success" variant="outline" class="ms-1">
               synchronisée
             </UBadge>
           </p>

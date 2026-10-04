@@ -87,14 +87,14 @@ function openShare(p: Pw) {
       Chaque mot de passe est rattaché à une année scoute et ouvre toutes les années protégées jusqu'à celle-ci incluse (R-05). Une famille partie garde l'accès à ses années sans voir les suivantes. Les anciens mots de passe restent valides tant qu'ils ne sont pas révoqués.
     </p>
 
-    <UCard v-if="created" class="ring-2 ring-success">
+    <div v-if="created" class="border border-accented p-5">
       <div class="space-y-4">
-        <UAlert color="success" variant="subtle" icon="i-lucide-key-round" :title="`Mot de passe ${scoutYearLabel(created.scoutYear)} créé`" description="Il n'est affiché qu'une seule fois : copiez-le maintenant (seul son haché est conservé)." />
+        <UAlert color="success" variant="outline" icon="i-lucide-key-round" :title="`Mot de passe ${scoutYearLabel(created.scoutYear)} créé`" description="Il n'est affiché qu'une seule fois : copiez-le maintenant (seul son haché est conservé)." />
         <AdminSecretBox :value="created.password" label="Mot de passe" />
         <AdminSecretBox :value="message" label="Message type pour les familles" multiline />
         <UButton label="J'ai copié le mot de passe" color="neutral" variant="outline" @click="created = null" />
       </div>
-    </UCard>
+    </div>
 
     <UTable
       :data="list ?? []"
@@ -120,10 +120,10 @@ function openShare(p: Pw) {
         {{ adminDate(row.original.lastUsedAt, true) }}
       </template>
       <template #revokedAt-cell="{ row }">
-        <UBadge v-if="row.original.revokedAt" color="error" variant="subtle">
+        <UBadge v-if="row.original.revokedAt" color="error" variant="outline">
           Révoqué le {{ adminDate(row.original.revokedAt) }}
         </UBadge>
-        <UBadge v-else color="success" variant="subtle">
+        <UBadge v-else color="success" variant="outline">
           Actif
         </UBadge>
       </template>

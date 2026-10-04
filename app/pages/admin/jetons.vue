@@ -62,16 +62,16 @@ const status = (t: Token) => t.revokedAt ? { label: 'Révoqué', color: 'error' 
       Documentation : <a href="/api/v1/docs" target="_blank" class="text-primary underline">/api/v1/docs</a> · contrat <a href="/api/v1/openapi.json" target="_blank" class="text-primary underline">OpenAPI</a>.
     </p>
 
-    <UCard v-if="created" class="ring-2 ring-success">
+    <div v-if="created" class="border border-accented p-5">
       <div class="space-y-4">
-        <UAlert color="success" variant="subtle" icon="i-lucide-key" :title="`Jeton « ${created.name} » créé`" :description="`Affiché une seule fois. Expire le ${adminDate(created.expiresAt)}.`" />
+        <UAlert color="success" variant="outline" icon="i-lucide-key" :title="`Jeton « ${created.name} » créé`" :description="`Affiché une seule fois. Expire le ${adminDate(created.expiresAt)}.`" />
         <AdminSecretBox :value="created.token" label="Jeton" />
         <AdminSecretBox :value="snippets.mcp" label="Claude Code (serveur MCP)" />
         <AdminSecretBox :value="snippets.curl" label="Test avec curl" />
         <AdminSecretBox :value="snippets.cli" label="Import d'un dossier (CLI, ffmpeg requis)" help="Retirez --dry-run après avoir vérifié le plan proposé." />
         <UButton label="J'ai copié le jeton" color="neutral" variant="outline" @click="created = null" />
       </div>
-    </UCard>
+    </div>
 
     <UTable
       :data="tokens ?? []"
@@ -97,7 +97,7 @@ const status = (t: Token) => t.revokedAt ? { label: 'Révoqué', color: 'error' 
       </template>
       <template #scopes-cell="{ row }">
         <div class="flex flex-wrap gap-1">
-          <UBadge v-for="s in row.original.scopes" :key="s" color="neutral" variant="subtle" size="sm">
+          <UBadge v-for="s in row.original.scopes" :key="s" color="neutral" variant="outline" size="sm">
             {{ SCOPE_LABELS[s] }}
           </UBadge>
         </div>
@@ -109,7 +109,7 @@ const status = (t: Token) => t.revokedAt ? { label: 'Révoqué', color: 'error' 
         {{ adminDate(row.original.expiresAt) }}
       </template>
       <template #status-cell="{ row }">
-        <UBadge :color="status(row.original).color" variant="subtle">
+        <UBadge :color="status(row.original).color" variant="outline">
           {{ status(row.original).label }}
         </UBadge>
       </template>

@@ -22,6 +22,11 @@
   --ui-border-accented: #111111;
   --ui-primary: #111111;
   --accent: #111111;
+  /* Couleurs sémantiques ramenées au noir : seule l'erreur garde une teinte (rouge sourd) */
+  --ui-success: #111111;
+  --ui-info: #111111;
+  --ui-warning: #111111;
+  --ui-error: #b3261e;
 }
 
 .dark {
@@ -36,6 +41,10 @@
   --ui-border: #262626;
   --ui-border-accented: #ededed;
   --ui-primary: #ededed;
+  --ui-success: #ededed;
+  --ui-info: #ededed;
+  --ui-warning: #ededed;
+  --ui-error: #f2726a;
 }
 
 html {

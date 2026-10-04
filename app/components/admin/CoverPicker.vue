@@ -24,7 +24,7 @@ function pick(id: string | null) {
           v-for="d in withThumb"
           :key="d.id"
           type="button"
-          class="group overflow-hidden rounded-lg border-2 text-left focus-visible:outline-2"
+          class="group overflow-hidden border-2 text-left focus-visible:outline-2"
           :class="d.id === modelValue ? 'border-primary' : 'border-transparent hover:border-accented'"
           :aria-pressed="d.id === modelValue"
           @click="pick(d.id)"

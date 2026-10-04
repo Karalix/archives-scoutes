@@ -300,7 +300,7 @@ const stateColor = (s: State) => s === 'done' ? 'success' : s === 'error' ? 'err
     </template>
 
     <div
-      class="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-colors"
+      class="flex flex-col items-center justify-center gap-3 border-2 border-dashed p-8 text-center transition-colors"
       :class="dragging ? 'border-primary bg-primary/5' : 'border-accented'"
       @dragover.prevent="dragging = true"
       @dragleave.prevent="dragging = false"
@@ -325,7 +325,7 @@ const stateColor = (s: State) => s === 'done' ? 'success' : s === 'error' ? 'err
       >
     </div>
 
-    <UAlert v-if="encoderInfo" color="warning" variant="subtle" icon="i-lucide-cpu" title="Encodage vidéo indisponible" :description="encoderInfo" />
+    <UAlert v-if="encoderInfo" color="warning" variant="outline" icon="i-lucide-cpu" title="Encodage vidéo indisponible" :description="encoderInfo" />
     <UAlert
       color="neutral"
       variant="outline"
@@ -335,7 +335,7 @@ const stateColor = (s: State) => s === 'done' ? 'success' : s === 'error' ? 'err
     />
 
     <template v-if="items.length">
-      <UCard :ui="{ body: 'p-3 sm:p-4' }">
+      <div class="border-y border-default py-4">
         <div class="grid gap-3 sm:grid-cols-3">
           <UFormField label="Année pour tous">
             <div class="flex gap-1">
@@ -359,7 +359,7 @@ const stateColor = (s: State) => s === 'done' ? 'success' : s === 'error' ? 'err
             </div>
           </UFormField>
         </div>
-      </UCard>
+      </div>
 
       <ul class="space-y-2" aria-label="Fichiers à importer">
         <li v-for="i in items" :key="i.key" class="rounded-lg border border-default p-3">
@@ -371,7 +371,7 @@ const stateColor = (s: State) => s === 'done' ? 'success' : s === 'error' ? 'err
                   {{ i.file.name }}
                 </p>
                 <span class="text-xs text-muted">{{ formatBytes(i.file.size) }}</span>
-                <UBadge :color="stateColor(i.state)" variant="subtle" class="ms-auto">
+                <UBadge :color="stateColor(i.state)" variant="outline" class="ms-auto">
                   {{ STATE_LABEL[i.state] }}{{ (i.state === 'encodage' || i.state === 'envoi') ? ` ${Math.round(i.progress * 100)} %` : '' }}
                 </UBadge>
               </div>
@@ -403,7 +403,7 @@ const stateColor = (s: State) => s === 'done' ? 'success' : s === 'error' ? 'err
               <p v-if="i.message" class="text-sm" :class="i.state === 'error' ? 'text-error' : 'text-muted'">
                 {{ i.message }}
               </p>
-              <div v-if="i.ffmpeg" class="space-y-2 rounded-md bg-elevated p-3 text-sm">
+              <div v-if="i.ffmpeg" class="space-y-2 bg-elevated p-3 text-sm">
                 <p>Encodez la vidéo sur un ordinateur avec ffmpeg, puis déposez le fichier obtenu :</p>
                 <AdminSecretBox :value="i.ffmpeg" />
                 <p class="text-muted">
@@ -438,7 +438,7 @@ const stateColor = (s: State) => s === 'done' ? 'success' : s === 'error' ? 'err
         </li>
       </ul>
 
-      <div class="sticky bottom-0 flex flex-wrap items-center gap-2 rounded-lg border border-default bg-default/95 p-3 backdrop-blur">
+      <div class="sticky bottom-0 flex flex-wrap items-center gap-2 border border-default bg-default/95 p-3 backdrop-blur">
         <p class="me-auto text-sm">
           {{ items.length }} fichier{{ items.length > 1 ? 's' : '' }} ({{ formatBytes(totalSize) }}) ·
           <span class="text-success">{{ done.length }} terminé{{ done.length > 1 ? 's' : '' }}</span>
@@ -455,7 +455,7 @@ const stateColor = (s: State) => s === 'done' ? 'success' : s === 'error' ? 'err
         />
         <template v-if="done.length && !running">
           <UButton to="/admin/documents?status=draft" label="Voir les brouillons" icon="i-lucide-file-pen" color="neutral" variant="outline" />
-          <UButton v-if="can('editor')" label="Publier ces documents" icon="i-lucide-send" color="success" :loading="publishing" @click="publishAll" />
+          <UButton v-if="can('editor')" label="Publier ces documents" icon="i-lucide-send" color="neutral" :loading="publishing" @click="publishAll" />
           <UButton label="Vider la liste" color="neutral" variant="ghost" @click="clearDone" />
         </template>
       </div>

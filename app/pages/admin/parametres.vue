@@ -143,12 +143,7 @@ async function onLogo(e: Event) {
     </div>
 
     <form v-else class="space-y-6" @submit.prevent="save">
-      <UCard>
-        <template #header>
-          <h2 class="font-semibold">
-            Identité du groupe
-          </h2>
-        </template>
+      <AdminSection title="Identité du groupe">
         <div class="grid gap-4 md:grid-cols-2">
           <UFormField label="Nom du groupe" required>
             <UInput v-model="f.name" class="w-full" />
@@ -158,14 +153,14 @@ async function onLogo(e: Event) {
           </UFormField>
           <UFormField label="Logo" help="PNG, JPEG ou WebP, 2 Mo maximum.">
             <div class="flex items-center gap-3">
-              <img v-if="site?.logoUrl" :src="site.logoUrl" alt="Logo actuel" class="size-12 rounded border border-default object-contain">
+              <img v-if="site?.logoUrl" :src="site.logoUrl" alt="Logo actuel" class="size-12 border border-default object-contain">
               <UButton label="Changer le logo" icon="i-lucide-image-up" color="neutral" variant="outline" @click="logoInput?.click()" />
               <input ref="logoInput" type="file" accept="image/png,image/jpeg,image/webp" class="sr-only" aria-label="Logo" @change="onLogo">
             </div>
           </UFormField>
           <UFormField label="Couleur principale">
             <div class="flex items-center gap-2">
-              <input v-model="f.primaryColor" type="color" aria-label="Couleur principale" class="h-9 w-12 cursor-pointer rounded border border-default bg-transparent">
+              <input v-model="f.primaryColor" type="color" aria-label="Couleur principale" class="h-9 w-12 cursor-pointer border border-default bg-transparent">
               <UInput v-model="f.primaryColor" class="w-28" />
             </div>
           </UFormField>
@@ -173,7 +168,7 @@ async function onLogo(e: Event) {
             <div class="grid gap-3 md:grid-cols-2">
               <UTextarea v-model="f.intro" :rows="6" class="w-full" />
               <!-- eslint-disable-next-line vue/no-v-html -->
-              <div class="prose-lite rounded-md border border-dashed border-default p-3 text-sm" aria-label="Aperçu" v-html="introHtml || '<p class=&quot;text-muted&quot;>Aperçu</p>'" />
+              <div class="prose-lite border border-dashed border-default p-3 text-sm" aria-label="Aperçu" v-html="introHtml || '<p class=&quot;text-muted&quot;>Aperçu</p>'" />
             </div>
           </UFormField>
           <UFormField label="Mentions légales" class="md:col-span-2">
@@ -183,14 +178,9 @@ async function onLogo(e: Event) {
             <UTextarea v-model="f.privacy" :rows="5" autoresize class="w-full" />
           </UFormField>
         </div>
-      </UCard>
+      </AdminSection>
 
-      <UCard>
-        <template #header>
-          <h2 class="font-semibold">
-            Année pivot et accès
-          </h2>
-        </template>
+      <AdminSection title="Année pivot et accès">
         <div class="space-y-4">
           <URadioGroup v-model="f.pivotMode" :items="modeItems" legend="Mode" />
           <div class="grid gap-4 sm:grid-cols-3">
@@ -206,7 +196,7 @@ async function onLogo(e: Event) {
           </div>
           <UAlert
             :color="pivotChanged ? 'warning' : 'info'"
-            variant="subtle"
+            variant="outline"
             :icon="pivotChanged ? 'i-lucide-triangle-alert' : 'i-lucide-info'"
             :title="`Pivot effectif : ${scoutYearLabel(previewPivot)}`"
             :description="pivotChanged
@@ -236,16 +226,11 @@ async function onLogo(e: Event) {
           <USwitch v-model="f.peopleField" label="Activer le champ « personnes »" description="Désactivé par défaut : pas d'identification nominative dans les métadonnées (L-03)." />
           <USwitch v-model="f.statsEnabled" label="Statistiques de consultation" description="Agrégées côté serveur, sans cookie ni traceur (L-06)." />
         </div>
-      </UCard>
+      </AdminSection>
 
-      <UCard>
-        <template #header>
-          <div class="flex items-center justify-between gap-2">
-            <h2 class="font-semibold">
-              Branches
-            </h2>
-            <UButton label="Ajouter" icon="i-lucide-plus" size="xs" variant="outline" @click="f.branches.push({ key: '', label: '', color: '#888888' })" />
-          </div>
+      <AdminSection title="Branches">
+        <template #actions>
+          <UButton label="Ajouter" icon="i-lucide-plus" size="xs" variant="outline" @click="f.branches.push({ key: '', label: '', color: '#888888' })" />
         </template>
         <p class="mb-3 text-sm text-muted">
           Le code court sert dans les noms de fichiers (ex. 2019_camp-ete_<strong>SG</strong>_montage.mp4). Changer un code ne modifie pas les documents existants.
@@ -254,27 +239,17 @@ async function onLogo(e: Event) {
           <div v-for="(b, n) in f.branches" :key="n" class="flex items-center gap-2">
             <UInput v-model="b.key" class="w-20" placeholder="SG" :aria-label="`Code de la branche ${n + 1}`" />
             <UInput v-model="b.label" class="flex-1" placeholder="Scouts-Guides" :aria-label="`Nom de la branche ${n + 1}`" />
-            <input v-model="b.color" type="color" :aria-label="`Couleur de la branche ${n + 1}`" class="h-8 w-10 shrink-0 cursor-pointer rounded border border-default bg-transparent">
+            <input v-model="b.color" type="color" :aria-label="`Couleur de la branche ${n + 1}`" class="h-8 w-10 shrink-0 cursor-pointer border border-default bg-transparent">
             <UButton icon="i-lucide-x" color="neutral" variant="ghost" :aria-label="`Supprimer la branche ${n + 1}`" :disabled="f.branches.length <= 1" @click="f.branches.splice(n, 1)" />
           </div>
         </div>
-      </UCard>
+      </AdminSection>
 
-      <UCard>
-        <template #header>
-          <h2 class="font-semibold">
-            Types d'événements
-          </h2>
-        </template>
+      <AdminSection title="Types d'événements">
         <UInputTags v-model="f.eventTypes" placeholder="Ajouter un type" class="w-full" />
-      </UCard>
+      </AdminSection>
 
-      <UCard v-if="can('owner')">
-        <template #header>
-          <h2 class="font-semibold">
-            Réglages techniques (propriétaires)
-          </h2>
-        </template>
+      <AdminSection title="Réglages techniques (propriétaires)" v-if="can('owner')">
         <div class="space-y-4">
           <USwitch v-model="f.keepOriginals" label="Conserver les originaux en ligne (V-04)" description="Préfixe jamais servi au public, téléchargeable par les administrateurs. Environ 1 $/mois pour 60 Go. Gardez de toute façon une copie hors ligne (V-05)." />
           <UFormField label="Quota de stockage (Go)" help="Alerte à 80 % ; 0 = sans quota (S-04).">
@@ -291,7 +266,7 @@ async function onLogo(e: Event) {
             </UFormField>
           </div>
         </div>
-      </UCard>
+      </AdminSection>
 
       <div class="flex justify-end">
         <UButton type="submit" label="Enregistrer" icon="i-lucide-save" size="lg" :loading="saving" />

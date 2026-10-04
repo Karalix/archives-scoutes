@@ -266,6 +266,7 @@ export interface EventInput {
   startDate?: string | null
   endDate?: string | null
   branch?: string | null
+  coverDocumentId?: string | null
 }
 
 async function guessEventType(title: string) {
@@ -287,7 +288,7 @@ export async function upsertEvent(actor: Actor, input: EventInput, dryRun = fals
   const ts = Date.now()
   if (existing) {
     const patch: Partial<EventRow> = { updatedAt: ts, yearId: y.id }
-    for (const k of ['type', 'title', 'place', 'startDate', 'endDate', 'branch'] as const) {
+    for (const k of ['type', 'title', 'place', 'startDate', 'endDate', 'branch', 'coverDocumentId'] as const) {
       if (input[k] !== undefined) (patch as any)[k] = input[k]
     }
     await db.update(schema.event).set(patch).where(eq(schema.event.id, existing.id))
@@ -296,7 +297,7 @@ export async function upsertEvent(actor: Actor, input: EventInput, dryRun = fals
   }
   const row: EventRow = {
     id: newId(), instanceId: instanceId(), yearId: y.id, type: input.type ?? await guessEventType(input.title), title: input.title, place: input.place ?? '',
-    startDate: input.startDate ?? null, endDate: input.endDate ?? null, branch: input.branch ?? null, coverDocumentId: null, sort: 0, createdAt: ts, updatedAt: ts,
+    startDate: input.startDate ?? null, endDate: input.endDate ?? null, branch: input.branch ?? null, coverDocumentId: input.coverDocumentId ?? null, sort: 0, createdAt: ts, updatedAt: ts,
   }
   await db.insert(schema.event).values(row)
   await audit(actor, 'event.create', `event:${row.id}`, null, row)

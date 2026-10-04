@@ -46,6 +46,20 @@ async function setCover(id: string | null) {
   catch (e) { notify.fail(e) }
 }
 
+// Couverture d'un événement (A-05)
+const evCoverFor = ref<AdminEvent | null>(null)
+const evCoverOpen = computed({ get: () => !!evCoverFor.value, set: (v) => { if (!v) evCoverFor.value = null } })
+async function setEventCover(id: string | null) {
+  const e = evCoverFor.value
+  if (!e) return
+  try {
+    await $fetch(`/api/v1/events/${e.id}`, { method: 'PATCH', body: { coverDocumentId: id } })
+    notify.ok(id ? 'Couverture de l\'événement choisie' : 'Couverture retirée')
+    await refreshEvents()
+  }
+  catch (err) { notify.fail(err) }
+}
+
 // Événements
 const NONE = '__none'
 const evOpen = ref(false)
@@ -120,35 +134,25 @@ async function refreshAll() {
 
     <template v-else-if="year">
       <div class="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <UCard>
-          <template #header>
-            <div class="flex flex-wrap items-center gap-2">
-              <h2 class="font-semibold">
-                Présentation
-              </h2>
-              <UBadge v-if="year.public" color="success" variant="subtle" icon="i-lucide-globe">
+        <AdminSection title="Présentation">
+        <template #actions>
+          <UBadge v-if="year.public" color="success" variant="outline" icon="i-lucide-globe">
                 Publique
               </UBadge>
-              <UBadge v-else color="warning" variant="subtle" icon="i-lucide-lock">
+              <UBadge v-else color="warning" variant="outline" icon="i-lucide-lock">
                 Protégée (mot de passe des familles)
               </UBadge>
-            </div>
-          </template>
+        </template>
           <UFormField label="Description" help="Visible sur la page de l'année (pour une année protégée : seulement après saisie du mot de passe).">
             <UTextarea v-model="description" :rows="4" autoresize class="w-full" />
           </UFormField>
           <div class="mt-3 flex justify-end">
             <UButton label="Enregistrer" :loading="savingDesc" :disabled="description === year.description" @click="saveDescription" />
           </div>
-        </UCard>
+        </AdminSection>
 
-        <UCard>
-          <template #header>
-            <h2 class="font-semibold">
-              Couverture
-            </h2>
-          </template>
-          <button type="button" class="block w-full overflow-hidden rounded-lg border border-default bg-elevated" @click="coverOpen = true">
+        <AdminSection title="Couverture">
+          <button type="button" class="block w-full overflow-hidden border border-default bg-elevated" @click="coverOpen = true">
             <img v-if="coverDoc?.thumbUrl" :src="coverDoc.thumbUrl" alt="Couverture actuelle" class="aspect-video w-full object-cover">
             <span v-else class="flex aspect-video items-center justify-center text-sm text-muted">
               <UIcon name="i-lucide-image-plus" class="me-2 size-5" /> Choisir une image
@@ -157,17 +161,12 @@ async function refreshAll() {
           <p class="mt-2 text-xs text-muted">
             {{ coverDoc ? coverDoc.title : 'Sans couverture : la première vignette disponible est utilisée.' }}
           </p>
-        </UCard>
+        </AdminSection>
       </div>
 
-      <UCard>
-        <template #header>
-          <div class="flex items-center justify-between gap-2">
-            <h2 class="font-semibold">
-              Événements
-            </h2>
-            <UButton icon="i-lucide-plus" label="Nouvel événement" size="sm" variant="outline" @click="openEvent()" />
-          </div>
+      <AdminSection title="Événements">
+        <template #actions>
+          <UButton icon="i-lucide-plus" label="Nouvel événement" size="sm" variant="outline" @click="openEvent()" />
         </template>
         <p v-if="!events?.length" class="text-sm text-muted">
           Aucun événement. Les documents peuvent être regroupés par camp, week-end, fête de groupe…
@@ -177,7 +176,7 @@ async function refreshAll() {
             <div class="min-w-0 flex-1">
               <p class="font-medium">
                 {{ e.title }}
-                <UBadge color="neutral" variant="subtle" size="sm" class="ms-1">
+                <UBadge color="neutral" variant="outline" size="sm" class="ms-1">
                   {{ e.type }}
                 </UBadge>
                 <UBadge v-if="e.branch" color="neutral" variant="outline" size="sm" class="ms-1">
@@ -188,15 +187,16 @@ async function refreshAll() {
                 {{ [e.place, dates(e), `${docCount(e.id)} document${docCount(e.id) > 1 ? 's' : ''}`].filter(Boolean).join(' · ') }}
               </p>
             </div>
+            <UButton icon="i-lucide-image" color="neutral" variant="ghost" size="sm" :aria-label="`Couverture de ${e.title}`" @click="evCoverFor = e" />
             <UButton icon="i-lucide-pencil" color="neutral" variant="ghost" size="sm" :aria-label="`Modifier ${e.title}`" @click="openEvent(e)" />
             <UButton icon="i-lucide-trash-2" color="error" variant="ghost" size="sm" :aria-label="`Supprimer ${e.title}`" @click="deleteEvent(e)" />
           </li>
         </ul>
-      </UCard>
+      </AdminSection>
 
       <div class="space-y-2">
         <div class="flex items-center justify-between gap-2">
-          <h2 class="text-lg font-semibold">
+          <h2 class="text-xs tracking-[0.2em] text-muted uppercase">
             Documents ({{ docs?.length ?? 0 }})
           </h2>
           <UButton :to="`/admin/televerser?annee=${startYear}`" icon="i-lucide-upload" label="Ajouter des documents" size="sm" variant="outline" />
@@ -218,6 +218,14 @@ async function refreshAll() {
       :model-value="year?.coverDocumentId ?? null"
       :title="`Couverture de ${scoutYearLabel(startYear)}`"
       @update:model-value="setCover"
+    />
+
+    <AdminCoverPicker
+      v-model:open="evCoverOpen"
+      :docs="(docs ?? []).filter(d => d.eventId === evCoverFor?.id)"
+      :model-value="evCoverFor?.coverDocumentId ?? null"
+      :title="`Couverture de « ${evCoverFor?.title ?? ''} »`"
+      @update:model-value="setEventCover"
     />
 
     <UModal v-model:open="evOpen" :title="ev.id ? 'Modifier l\'événement' : 'Nouvel événement'">

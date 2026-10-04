@@ -11,11 +11,11 @@ defineProps<{ value: string, label?: string, help?: string, multiline?: boolean 
     <div class="flex items-start gap-2">
       <pre
         v-if="multiline"
-        class="min-w-0 flex-1 overflow-x-auto whitespace-pre-wrap break-words rounded-md border border-default bg-elevated p-3 font-mono text-sm"
+        class="min-w-0 flex-1 overflow-x-auto whitespace-pre-wrap break-words border border-default bg-elevated p-3 font-mono text-sm"
       >{{ value }}</pre>
       <code
         v-else
-        class="min-w-0 flex-1 break-all rounded-md border border-default bg-elevated px-3 py-2 font-mono text-sm select-all"
+        class="min-w-0 flex-1 break-all border border-default bg-elevated px-3 py-2 font-mono text-sm select-all"
       >{{ value }}</code>
       <UButton icon="i-lucide-copy" color="neutral" variant="outline" aria-label="Copier" @click="adminCopy(value)" />
     </div>

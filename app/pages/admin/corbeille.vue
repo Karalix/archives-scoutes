@@ -36,7 +36,7 @@ async function purge(t: Trashed) {
       Les documents mis à la corbeille sont supprimés automatiquement après 30 jours.
     </p>
     <UEmpty v-if="!pending && !items?.length" icon="i-lucide-trash" title="Corbeille vide" />
-    <ul v-else class="divide-y divide-default rounded-lg border border-default">
+    <ul v-else class="divide-y divide-default border-y border-default">
       <li v-for="t in items" :key="t.id" class="flex flex-wrap items-center gap-3 p-3">
         <UIcon :name="KIND_ICONS[t.kind] ?? 'i-lucide-file'" class="size-5 text-muted" />
         <div class="min-w-0 flex-1">

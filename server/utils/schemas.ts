@@ -23,6 +23,7 @@ export const EventInputSchema = z.object({
   startDate: zDate.nullable().optional(),
   endDate: zDate.nullable().optional(),
   branch: z.string().max(10).nullable().optional(),
+  coverDocumentId: z.string().nullable().optional(),
 })
 
 export const DocumentInputSchema = z.object({

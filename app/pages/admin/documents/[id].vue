@@ -179,7 +179,7 @@ async function onVtt(e: Event) {
 
     <template v-else-if="doc">
       <div class="flex flex-wrap items-center gap-2">
-        <UBadge :color="STATUS_COLORS[doc.status]" variant="subtle" size="lg">
+        <UBadge :color="STATUS_COLORS[doc.status]" variant="outline" size="lg">
           {{ STATUS_LABELS[doc.status] }}
         </UBadge>
         <UBadge :color="VISIBILITY_COLORS[doc.visibility]" variant="outline" size="lg">
@@ -190,14 +190,14 @@ async function onVtt(e: Event) {
         </UBadge>
         <div class="ms-auto flex flex-wrap gap-2">
           <template v-if="can('editor')">
-            <UButton v-if="doc.status === 'draft'" label="Publier" icon="i-lucide-send" color="success" :disabled="!doc.hasFile && !doc.streamUid" @click="setPublished(true)" />
+            <UButton v-if="doc.status === 'draft'" label="Publier" icon="i-lucide-send" color="neutral" :disabled="!doc.hasFile && !doc.streamUid" @click="setPublished(true)" />
             <UButton v-else-if="doc.status === 'published'" label="Dépublier" icon="i-lucide-eye-off" color="neutral" variant="outline" @click="setPublished(false)" />
           </template>
           <UButton label="Corbeille" icon="i-lucide-trash-2" color="error" variant="soft" :disabled="readonly" @click="trash" />
         </div>
       </div>
-      <UAlert v-if="readonly" color="info" variant="subtle" icon="i-lucide-lock" title="Document publié" description="Un contributeur ne modifie pas un document publié : demandez à un éditeur." />
-      <UAlert v-if="!doc.hasFile && !doc.streamUid" color="warning" variant="subtle" icon="i-lucide-file-x" title="Aucun fichier" description="Téléversez le fichier ci-dessous avant de publier." />
+      <UAlert v-if="readonly" color="info" variant="outline" icon="i-lucide-lock" title="Document publié" description="Un contributeur ne modifie pas un document publié : demandez à un éditeur." />
+      <UAlert v-if="!doc.hasFile && !doc.streamUid" color="warning" variant="outline" icon="i-lucide-file-x" title="Aucun fichier" description="Téléversez le fichier ci-dessous avant de publier." />
 
       <div class="grid gap-6 lg:grid-cols-[3fr_2fr]">
         <form class="space-y-4" @submit.prevent="save">
@@ -276,19 +276,14 @@ async function onVtt(e: Event) {
         </form>
 
         <div class="space-y-4">
-          <UCard>
-            <template #header>
-              <h2 class="font-semibold">
-                Aperçu
-              </h2>
-            </template>
-            <video v-if="doc.kind === 'video' && doc.mainUrl" :src="doc.mainUrl" controls preload="metadata" :poster="doc.thumbUrl ?? undefined" class="aspect-video w-full rounded-md bg-black">
+          <AdminSection title="Aperçu">
+            <video v-if="doc.kind === 'video' && doc.mainUrl" :src="doc.mainUrl" controls preload="metadata" :poster="doc.thumbUrl ?? undefined" class="aspect-video w-full bg-black">
               <track v-if="doc.captionsUrl" kind="captions" :src="doc.captionsUrl" srclang="fr" label="Français">
             </video>
-            <img v-else-if="doc.kind === 'photo' && doc.mainUrl" :src="doc.mainUrl" :alt="doc.title" class="w-full rounded-md">
+            <img v-else-if="doc.kind === 'photo' && doc.mainUrl" :src="doc.mainUrl" :alt="doc.title" class="w-full">
             <audio v-else-if="doc.kind === 'audio' && doc.mainUrl" :src="doc.mainUrl" controls class="w-full" />
             <div v-else-if="doc.kind === 'pdf' && doc.mainUrl" class="space-y-2">
-              <img v-if="doc.thumbUrl" :src="doc.thumbUrl" alt="Première page" class="w-full rounded-md border border-default">
+              <img v-if="doc.thumbUrl" :src="doc.thumbUrl" alt="Première page" class="w-full border border-default">
               <UButton :to="doc.mainUrl" target="_blank" label="Ouvrir le PDF" icon="i-lucide-file-text" variant="outline" />
             </div>
             <p v-else class="text-sm text-muted">
@@ -326,14 +321,9 @@ async function onVtt(e: Event) {
                 </dd>
               </div>
             </dl>
-          </UCard>
+          </AdminSection>
 
-          <UCard>
-            <template #header>
-              <h2 class="font-semibold">
-                Fichiers
-              </h2>
-            </template>
+          <AdminSection title="Fichiers">
             <div class="space-y-3">
               <div v-if="replacing.active" class="space-y-1">
                 <p class="text-sm">
@@ -351,14 +341,9 @@ async function onVtt(e: Event) {
               <input ref="replaceInput" type="file" class="sr-only" aria-label="Fichier principal" @change="onReplace">
               <input ref="vttInput" type="file" accept=".vtt,text/vtt" class="sr-only" aria-label="Sous-titres VTT" @change="onVtt">
             </div>
-          </UCard>
+          </AdminSection>
 
-          <UCard>
-            <template #header>
-              <h2 class="font-semibold">
-                Vignette
-              </h2>
-            </template>
+          <AdminSection title="Vignette">
             <AdminThumbPicker
               :key="doc.updatedAt"
               :document-id="doc.id"
@@ -367,16 +352,11 @@ async function onVtt(e: Event) {
               :thumb-url="doc.thumbUrl"
               @done="refresh()"
             />
-          </UCard>
+          </AdminSection>
 
-          <UCard v-if="doc.kind === 'video' && settings?.settings.streamEnabled">
-            <template #header>
-              <h2 class="font-semibold">
-                Cloudflare Stream
-              </h2>
-            </template>
+          <AdminSection title="Cloudflare Stream" v-if="doc.kind === 'video' && settings?.settings.streamEnabled">
             <AdminStreamUpload :document-id="doc.id" :stream-uid="doc.streamUid" @done="refresh()" />
-          </UCard>
+          </AdminSection>
         </div>
       </div>
     </template>

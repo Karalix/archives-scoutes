@@ -74,15 +74,15 @@ async function remove(y: AdminYear) {
       description="Créez une première année, ou téléversez directement des fichiers : les années sont créées à l'import."
       :actions="[{ label: 'Nouvelle année', icon: 'i-lucide-plus', onClick: openCreate }]"
     />
-    <ul v-else class="divide-y divide-default rounded-lg border border-default">
+    <ul v-else class="divide-y divide-default border-y border-default">
       <li v-for="y in years" :key="y.id" class="flex flex-wrap items-center gap-3 p-3 sm:flex-nowrap">
         <NuxtLink :to="`/admin/annees/${y.startYear}`" class="min-w-0 flex-1">
           <div class="flex flex-wrap items-center gap-2">
-            <span class="text-lg font-semibold">{{ y.label }}</span>
-            <UBadge v-if="y.public" color="success" variant="subtle" icon="i-lucide-globe">
+            <span class="text-2xl font-light tracking-tight">{{ y.label }}</span>
+            <UBadge v-if="y.public" color="success" variant="outline" icon="i-lucide-globe">
               Publique
             </UBadge>
-            <UBadge v-else color="warning" variant="subtle" icon="i-lucide-lock">
+            <UBadge v-else color="warning" variant="outline" icon="i-lucide-lock">
               Protégée
             </UBadge>
           </div>

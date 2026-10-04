@@ -47,13 +47,13 @@ const columns: TableColumn<AdminDoc>[] = [
 const busy = ref(false)
 const errors = ref<{ title: string, error: string }[]>([])
 
-function collectErrors(results: { id?: string, index?: number, ok: boolean, error?: string, hint?: string }[], docs: AdminDoc[]) {
+function collectErrors(results: { id?: string, index?: number, ok: boolean, error?: string, hint?: string }[], docs: AdminDoc[], verb = 'mis à jour') {
   errors.value = results.filter(r => !r.ok).map((r) => {
     const doc = r.id ? docs.find(d => d.id === r.id) : docs[r.index ?? -1]
     return { title: doc?.title ?? r.id ?? '?', error: [r.error, r.hint].filter(Boolean).join(' — ') }
   })
   const okCount = results.filter(r => r.ok).length
-  if (okCount) notify.ok(`${okCount} document${okCount > 1 ? 's' : ''} mis à jour`)
+  if (okCount) notify.ok(`${okCount} document${okCount > 1 ? 's' : ''} ${verb}`)
   if (errors.value.length) notify.warn(`${errors.value.length} échec${errors.value.length > 1 ? 's' : ''}`, 'Détail sous la barre d\'actions.')
 }
 
@@ -91,7 +91,7 @@ async function idsAction(action: 'publish' | 'unpublish' | 'trash') {
   busy.value = true
   try {
     const r = await $fetch<{ results: { id: string, ok: boolean, error?: string }[] }>(`/api/v1/documents:${action}`, { method: 'POST', body: { ids: docs.map(d => d.id) } })
-    collectErrors(r.results, docs)
+    collectErrors(r.results, docs, { publish: 'publié(s)', unpublish: 'repassé(s) en brouillon', trash: 'mis à la corbeille' }[action])
     if (action === 'trash') selected.value = []
     emit('changed')
   }
@@ -178,7 +178,7 @@ const assignItems = computed(() => [
   <div class="space-y-3">
     <div
       v-if="selected.length"
-      class="sticky top-0 z-10 flex flex-wrap items-center gap-2 rounded-lg border border-default bg-default/95 p-2 shadow-sm backdrop-blur"
+      class="sticky top-0 z-10 flex flex-wrap items-center gap-2 border border-default bg-default/95 p-2 backdrop-blur"
       role="toolbar"
       aria-label="Actions sur la sélection"
     >
@@ -197,7 +197,7 @@ const assignItems = computed(() => [
     <UAlert
       v-if="errors.length"
       color="error"
-      variant="subtle"
+      variant="outline"
       icon="i-lucide-circle-alert"
       :title="`${errors.length} document${errors.length > 1 ? 's' : ''} non modifié${errors.length > 1 ? 's' : ''}`"
       close
@@ -231,7 +231,7 @@ const assignItems = computed(() => [
         />
       </template>
       <template #thumb-cell="{ row }">
-        <NuxtLink :to="`/admin/documents/${row.original.id}`" class="block size-14 shrink-0 overflow-hidden rounded bg-elevated" tabindex="-1">
+        <NuxtLink :to="`/admin/documents/${row.original.id}`" class="block size-14 shrink-0 overflow-hidden bg-elevated" tabindex="-1">
           <img v-if="row.original.thumbUrl" :src="row.original.thumbUrl" alt="" loading="lazy" class="size-full object-cover">
           <div v-else class="flex size-full items-center justify-center text-muted">
             <UIcon :name="KIND_ICONS[row.original.kind] ?? 'i-lucide-file'" class="size-6" />
@@ -251,7 +251,7 @@ const assignItems = computed(() => [
       </template>
       <template #status-cell="{ row }">
         <div class="flex flex-wrap gap-1">
-          <UBadge :color="STATUS_COLORS[row.original.status]" variant="subtle">
+          <UBadge :color="STATUS_COLORS[row.original.status]" variant="outline">
             {{ STATUS_LABELS[row.original.status] }}
           </UBadge>
           <UBadge v-if="row.original.visibility !== 'inherit'" :color="VISIBILITY_COLORS[row.original.visibility]" variant="outline">
@@ -283,7 +283,7 @@ const assignItems = computed(() => [
             <UAlert
               v-if="bulkYears.length > 1"
               color="info"
-              variant="subtle"
+              variant="outline"
               icon="i-lucide-info"
               title="La sélection couvre plusieurs années"
               description="L'événement sera retrouvé par son titre (ou créé) dans l'année de chaque document."

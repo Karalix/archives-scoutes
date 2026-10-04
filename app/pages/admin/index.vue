@@ -39,6 +39,13 @@ function newer(a: string | null | undefined, b: string | null | undefined) {
 }
 const updateAvailable = computed(() => newer(data.value?.latestVersion, data.value?.version))
 
+const stats = computed(() => data.value ? [
+  { label: 'Publiés', value: data.value.documents.published ?? 0, to: '/admin/documents?status=published' },
+  { label: 'Brouillons', value: data.value.documents.draft ?? 0, to: '/admin/documents?status=draft', alert: false },
+  { label: 'Années', value: data.value.years, to: '/admin/annees' },
+  { label: 'Signalements ouverts', value: data.value.openReports, to: can('editor') ? '/admin/signalements' : undefined, alert: data.value.openReports > 0 },
+] : [])
+
 const reminderLink = (r: string) => {
   if (r.includes('mot de passe')) return can('editor') ? '/admin/mots-de-passe' : undefined
   if (r.includes('pivot')) return can('editor') ? '/admin/parametres' : undefined
@@ -64,68 +71,40 @@ const reminderLink = (r: string) => {
           v-for="r in data.reminders"
           :key="r"
           color="warning"
-          variant="subtle"
+          variant="outline"
           icon="i-lucide-bell-ring"
           :title="r"
           :actions="reminderLink(r) ? [{ label: 'Y aller', to: reminderLink(r), color: 'warning', variant: 'outline' }] : undefined"
         />
       </div>
 
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <UCard>
-          <p class="text-sm text-muted">
-            Documents publiés
-          </p>
-          <p class="text-3xl font-semibold">
-            {{ data.documents.published ?? 0 }}
-          </p>
-        </UCard>
-        <NuxtLink to="/admin/documents?status=draft" class="block rounded-lg focus-visible:outline-2">
-          <UCard class="h-full hover:bg-elevated/50">
-            <p class="text-sm text-muted">
-              Brouillons à relire
-            </p>
-            <p class="text-3xl font-semibold" :class="data.documents.draft ? 'text-warning' : ''">
-              {{ data.documents.draft ?? 0 }}
-            </p>
-          </UCard>
-        </NuxtLink>
-        <NuxtLink to="/admin/annees" class="block rounded-lg">
-          <UCard class="h-full hover:bg-elevated/50">
-            <p class="text-sm text-muted">
-              Années
-            </p>
-            <p class="text-3xl font-semibold">
-              {{ data.years }}
-            </p>
-          </UCard>
-        </NuxtLink>
-        <component :is="can('editor') ? NuxtLinkC : 'div'" to="/admin/signalements" class="block rounded-lg">
-          <UCard class="h-full" :class="can('editor') ? 'hover:bg-elevated/50' : ''">
-            <p class="text-sm text-muted">
-              Signalements ouverts
-            </p>
-            <p class="text-3xl font-semibold" :class="data.openReports ? 'text-error' : ''">
-              {{ data.openReports }}
-            </p>
-          </UCard>
+      <dl class="grid grid-cols-2 border-y border-default lg:grid-cols-4">
+        <component
+          :is="s.to ? NuxtLinkC : 'div'"
+          v-for="s in stats"
+          :key="s.label"
+          :to="s.to"
+          class="border-default p-4 not-last:border-e max-lg:nth-2:border-e-0 max-lg:nth-[-n+2]:border-b"
+          :class="s.to ? 'hover:bg-elevated' : ''"
+        >
+          <dt class="text-xs tracking-[0.2em] text-muted uppercase">
+            {{ s.label }}
+          </dt>
+          <dd class="mt-2 text-4xl font-light tabular-nums" :class="s.alert ? 'text-error' : ''">
+            {{ s.value }}
+          </dd>
         </component>
-      </div>
+      </dl>
 
-      <div class="grid gap-4 lg:grid-cols-2">
-        <UCard>
-          <template #header>
-            <h2 class="flex items-center gap-2 font-semibold">
-              <UIcon name="i-lucide-hard-drive" /> Stockage
-            </h2>
-          </template>
+      <div class="grid gap-x-10 gap-y-8 lg:grid-cols-2">
+        <AdminSection title="Stockage">
           <div class="space-y-3">
             <div class="flex items-baseline justify-between gap-2">
-              <span class="text-2xl font-semibold">{{ formatBytes(data.storage.used) }}</span>
+              <span class="text-3xl font-light tabular-nums">{{ formatBytes(data.storage.used) }}</span>
               <span class="text-sm text-muted">{{ data.storage.quota ? `sur ${formatBytes(data.storage.quota)} (${storagePct} %)` : 'sans quota' }}</span>
             </div>
             <UProgress v-if="data.storage.quota" :model-value="storagePct" :color="storagePct >= 80 ? 'error' : 'primary'" />
-            <UAlert v-if="storagePct >= 80" color="error" variant="subtle" icon="i-lucide-triangle-alert" title="Plus de 80 % du quota utilisé (S-04)" description="Un propriétaire peut relever le quota dans les paramètres ou faire du tri dans la corbeille." />
+            <UAlert v-if="storagePct >= 80" color="error" variant="outline" icon="i-lucide-triangle-alert" title="Plus de 80 % du quota utilisé (S-04)" description="Un propriétaire peut relever le quota dans les paramètres ou faire du tri dans la corbeille." />
             <dl class="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <dt class="text-muted">
@@ -161,16 +140,11 @@ const reminderLink = (r: string) => {
               </div>
             </dl>
           </div>
-        </UCard>
+        </AdminSection>
 
-        <UCard>
-          <template #header>
-            <h2 class="flex items-center gap-2 font-semibold">
-              <UIcon name="i-lucide-receipt" /> Coût estimé (mensuel)
-            </h2>
-          </template>
+        <AdminSection title="Coût estimé (mensuel)">
           <div class="space-y-3">
-            <p class="text-2xl font-semibold">
+            <p class="text-3xl font-light tabular-nums">
               {{ data.cost.total.toLocaleString('fr-FR', { style: 'currency', currency: data.cost.currency }) }}
             </p>
             <dl class="grid grid-cols-2 gap-3 text-sm">
@@ -195,18 +169,13 @@ const reminderLink = (r: string) => {
               Estimation hors TVA : 10 Go gratuits puis 0,015 $/Go sur R2, sortie de données gratuite. Workers et D1 restent dans l'offre gratuite pour un groupe type (D-04).
             </p>
           </div>
-        </UCard>
+        </AdminSection>
 
-        <UCard>
-          <template #header>
-            <h2 class="flex items-center gap-2 font-semibold">
-              <UIcon name="i-lucide-lock" /> Accès
-            </h2>
-          </template>
+        <AdminSection title="Accès">
           <div class="space-y-2 text-sm">
             <p>Année scoute en cours : <strong>{{ data.currentYearLabel }}</strong></p>
             <p>
-              Année pivot : <strong>{{ scoutYearLabel(data.pivot) }}</strong>
+              Année pivot : <strong>{{ scoutYearLabel(data.pivot) }}</strong>&nbsp;
               <span class="text-muted">({{ data.pivotMode === 'sliding' ? 'mode glissant' : 'mode fixe' }})</span>
             </p>
             <p class="text-muted">
@@ -217,18 +186,13 @@ const reminderLink = (r: string) => {
               <UButton v-if="can('editor')" to="/admin/parametres" label="Régler le pivot" icon="i-lucide-settings" size="sm" variant="ghost" />
             </div>
           </div>
-        </UCard>
+        </AdminSection>
 
-        <UCard>
-          <template #header>
-            <h2 class="flex items-center gap-2 font-semibold">
-              <UIcon name="i-lucide-package" /> Version
-            </h2>
-          </template>
+        <AdminSection title="Version">
           <div class="space-y-3 text-sm">
             <p>
               Version installée : <strong>{{ data.version }}</strong>
-              <UBadge v-if="!updateAvailable && data.latestVersion" color="success" variant="subtle" class="ms-2">
+              <UBadge v-if="!updateAvailable && data.latestVersion" color="success" variant="outline" class="ms-2">
                 à jour
               </UBadge>
             </p>
@@ -243,7 +207,7 @@ const reminderLink = (r: string) => {
               Stockage : {{ data.storageDriver }}
             </p>
           </div>
-        </UCard>
+        </AdminSection>
       </div>
 
       <UAlert

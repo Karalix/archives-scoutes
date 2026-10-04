@@ -97,13 +97,13 @@ const menu = (u: User) => [
     <UAlert
       v-if="data && owners < 2"
       color="warning"
-      variant="subtle"
+      variant="outline"
       icon="i-lucide-users"
       title="Un seul propriétaire actif"
       description="Prévoyez au moins deux propriétaires, et des comptes Cloudflare et GitHub au nom d'une adresse du groupe, jamais d'un seul chef appelé à partir (D-05)."
     />
 
-    <UCard v-if="link" class="ring-2 ring-primary">
+    <div v-if="link" class="border border-accented p-5">
       <div class="space-y-3">
         <AdminSecretBox
           :value="link.url"
@@ -112,9 +112,9 @@ const menu = (u: User) => [
         />
         <UButton label="Fermer" size="sm" color="neutral" variant="outline" @click="link = null" />
       </div>
-    </UCard>
+    </div>
 
-    <div class="divide-y divide-default rounded-lg border border-default">
+    <div class="divide-y divide-default border-y border-default">
       <div v-if="pending && !data" class="p-4">
         <USkeleton class="h-12" />
       </div>
@@ -123,10 +123,10 @@ const menu = (u: User) => [
         <div class="min-w-0 flex-1">
           <p class="font-medium">
             {{ u.name }}
-            <UBadge v-if="u.id === me?.id" size="sm" variant="subtle" class="ms-1">
+            <UBadge v-if="u.id === me?.id" size="sm" variant="outline" class="ms-1">
               vous
             </UBadge>
-            <UBadge v-if="u.disabledAt" size="sm" color="error" variant="subtle" class="ms-1">
+            <UBadge v-if="u.disabledAt" size="sm" color="error" variant="outline" class="ms-1">
               désactivé
             </UBadge>
           </p>
@@ -149,10 +149,10 @@ const menu = (u: User) => [
     </div>
 
     <div v-if="data?.invites.length" class="space-y-2">
-      <h2 class="font-semibold">
+      <h2 class="text-xs tracking-[0.2em] text-muted uppercase">
         Invitations en attente
       </h2>
-      <ul class="divide-y divide-default rounded-lg border border-default">
+      <ul class="divide-y divide-default border-y border-default">
         <li v-for="i in data.invites" :key="i.id" class="flex flex-wrap items-center gap-3 p-3">
           <UIcon name="i-lucide-mail" class="size-5 text-muted" />
           <div class="min-w-0 flex-1 text-sm">

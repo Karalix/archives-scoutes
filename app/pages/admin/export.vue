@@ -24,12 +24,7 @@ const date = (v: number | string) => adminDate(typeof v === 'number' ? v : new D
 
 <template>
   <AdminPage title="Export & sauvegardes">
-    <UCard>
-      <template #header>
-        <h2 class="font-semibold">
-          Export complet
-        </h2>
-      </template>
+    <AdminSection title="Export complet">
       <div class="space-y-3 text-sm">
         <p>
           Le fichier d'export contient toutes les métadonnées (années, événements, documents, réglages hors secrets) et les liens vers tous les fichiers, valables 6 heures. Votre groupe peut ainsi toujours repartir avec ses archives.
@@ -38,24 +33,19 @@ const date = (v: number | string) => adminDate(typeof v === 'number' ? v : new D
         <p>Pour récupérer aussi tous les fichiers dans un dossier, lancez ensuite sur un ordinateur :</p>
         <AdminSecretBox :value="`npx archives-scoutes export ./archives-export-${today}.json --out ./dossier`" />
       </div>
-    </UCard>
+    </AdminSection>
 
-    <UCard>
-      <template #header>
-        <div class="flex items-center justify-between gap-2">
-          <h2 class="font-semibold">
-            Sauvegardes de la base
-          </h2>
+    <AdminSection title="Sauvegardes de la base">
+        <template #actions>
           <UButton label="Sauvegarder maintenant" icon="i-lucide-database-backup" size="sm" :loading="busy" @click="backupNow" />
-        </div>
-      </template>
+        </template>
       <p class="mb-3 text-sm text-muted">
         Une copie de la base (JSON) est enregistrée chaque lundi dans le stockage ; les 8 dernières sont conservées. Elle ne contient pas les fichiers : gardez aussi les originaux hors ligne (V-05).
       </p>
       <p v-if="!pending && !backups?.length" class="text-sm text-muted">
         Aucune sauvegarde pour l'instant.
       </p>
-      <ul v-else class="divide-y divide-default rounded-lg border border-default">
+      <ul v-else class="divide-y divide-default border-y border-default">
         <li v-for="b in backups" :key="b.key" class="flex flex-wrap items-center gap-3 p-3 text-sm">
           <UIcon name="i-lucide-database" class="text-muted" />
           <code class="min-w-0 flex-1 truncate">{{ b.key.split('/').pop() }}</code>
@@ -63,6 +53,6 @@ const date = (v: number | string) => adminDate(typeof v === 'number' ? v : new D
           <span class="text-muted">{{ date(b.uploaded) }}</span>
         </li>
       </ul>
-    </UCard>
+    </AdminSection>
   </AdminPage>
 </template>

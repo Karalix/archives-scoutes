@@ -63,7 +63,7 @@ function targetLink(t: string | null) {
       Qui a publié, modifié, supprimé, changé la visibilité ou le pivot. Les actions faites avec un jeton d'API apparaissent comme « token:nom ».
     </p>
 
-    <ul class="divide-y divide-default rounded-lg border border-default">
+    <ul class="divide-y divide-default border-y border-default">
       <li v-if="!entries.length && !loading" class="p-4 text-sm text-muted">
         Aucune entrée.
       </li>
@@ -77,7 +77,7 @@ function targetLink(t: string | null) {
           <UIcon :name="expanded === e.id ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'" class="text-muted" />
           <span class="w-36 shrink-0 text-xs text-muted">{{ adminDate(e.createdAt, true) }}</span>
           <span class="font-medium">{{ e.actorName ?? e.actor }}</span>
-          <UBadge color="neutral" variant="subtle">
+          <UBadge color="neutral" variant="outline">
             {{ e.action }}
           </UBadge>
           <span class="min-w-0 truncate text-sm text-muted">{{ e.target }}</span>
@@ -94,13 +94,13 @@ function targetLink(t: string | null) {
               <p class="text-xs font-medium">
                 Avant
               </p>
-              <pre class="max-h-72 overflow-auto rounded bg-elevated p-2 text-xs">{{ json(e.before) }}</pre>
+              <pre class="max-h-72 overflow-auto bg-elevated p-2 text-xs">{{ json(e.before) }}</pre>
             </div>
             <div>
               <p class="text-xs font-medium">
                 Après
               </p>
-              <pre class="max-h-72 overflow-auto rounded bg-elevated p-2 text-xs">{{ json(e.after) }}</pre>
+              <pre class="max-h-72 overflow-auto bg-elevated p-2 text-xs">{{ json(e.after) }}</pre>
             </div>
           </div>
         </div>
