@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   const files = []
   for (const d of docs) {
     for (const [variant, key] of [['main', d.storageKey], ['thumb', d.thumbKey], ['captions', d.captionsKey], ['original', d.originalKey]] as const) {
-      if (key) files.push({ documentId: d.id, variant, key, url: origin + await signMediaUrl(d.id, variant, { protected: true }) })
+      if (key) files.push({ documentId: d.id, variant, key, url: origin + await signMediaUrl(d.id, variant, { protected: true, admin: true }) })
     }
   }
   await audit(admin, 'instance.export', `instance:${instanceId()}`, null, { documents: docs.length, files: files.length })

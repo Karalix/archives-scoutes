@@ -16,7 +16,12 @@ export const WORDS = (
   + 'pont prairie puma quartz radeau raisin rameau raquette refuge renard riviere rocher roseau rossignol '
   + 'ruisseau sable sac sapin sauge saule sentier serpe silex sirop soleil source sureau tamis tente terrier '
   + 'thym tilleul tipi tisane tonnerre torrent totem tournesol trefle troupe truite tulipe vallee vent '
-  + 'verger veillee violette volcan voile zebre'
+  + 'verger veillee violette volcan voile zebre '
+  + 'agate algue antilope aubepine avalanche baleine banane bergeronnette biche bison boucle braise brindille '
+  + 'cactus caravane carpe cascade cerise chaudron chevalet ciboulette clochette corail cormoran crevette '
+  + 'dahlia daim datte dindon dragon epicea epine escargot faisan falaise fenouil flute fontaine gaufre '
+  + 'girafe griffon groseille guitare hirondelle igloo jardin javelot koala lichen limace luciole mangue '
+  + 'marais melon meteore narval nenuphar noix orque otarie papyrus pelican perche pivert poney prune'
 ).split(/\s+/)
 
 export function randomInt(max: number): number {

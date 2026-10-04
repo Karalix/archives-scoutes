@@ -34,7 +34,7 @@ export async function serializeAdminDoc(doc: DocumentRow, yearStart: number, wit
   const tags = withMedia
     ? (await db.select({ label: schema.tag.label }).from(schema.documentTag).innerJoin(schema.tag, eq(schema.tag.id, schema.documentTag.tagId)).where(eq(schema.documentTag.documentId, doc.id))).map(t => t.label)
     : undefined
-  const sign = (v: 'main' | 'thumb' | 'captions' | 'original') => signMediaUrl(doc.id, v, { protected: true, version: doc.updatedAt })
+  const sign = (v: 'main' | 'thumb' | 'captions' | 'original') => signMediaUrl(doc.id, v, { protected: true, admin: true, version: doc.updatedAt })
   return {
     id: doc.id,
     externalId: doc.externalId,
@@ -63,6 +63,7 @@ export async function serializeAdminDoc(doc: DocumentRow, yearStart: number, wit
     hasThumb: !!doc.thumbKey,
     hasOriginal: !!doc.originalKey,
     hasCaptions: !!doc.captionsKey,
+    streamUid: doc.streamUid,
     createdBy: doc.createdBy,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,

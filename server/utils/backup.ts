@@ -1,3 +1,4 @@
+import { db, schema } from 'hub:db'
 
 const TABLES = ['instance', 'year', 'event', 'document', 'tag', 'documentTag', 'accessPassword', 'adminUser', 'passkey', 'apiToken', 'auditLog', 'report', 'usageStat'] as const
 
@@ -5,7 +6,7 @@ const TABLES = ['instance', 'year', 'event', 'document', 'tag', 'documentTag', '
 export async function dumpDatabase(opts: { redactSecrets?: boolean } = {}) {
   const out: Record<string, unknown[]> = {}
   for (const t of TABLES) {
-    const rows = await db.select().from((schema as any)[t])
+    const rows = await db.select().from(schema[t] as any)
     out[t] = opts.redactSecrets
       ? rows.map((r: any) => {
           const { passwordHash: _p, hash: _h, lookup: _l, tokenHash: _t, publicKey: _k, ...rest } = r

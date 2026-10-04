@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # ffmpeg sert aux tests de conformité MP4 (fichiers générés à la volée)
+      - name: Installer ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+
+      - name: Dépendances
+        run: npm ci
+
+      - name: Préparation Nuxt
+        run: npx nuxt prepare
+
+      - name: Tests unitaires (couverture 100 % des règles d'accès, L-09)
+        run: npx vitest run --coverage
+
+      - name: Vérification des types
+        run: npx nuxt typecheck
+
+      # NITRO_PRESET non défini : preset cloudflare_module de nuxt.config.ts
+      - name: Build
+        run: npx nuxt build

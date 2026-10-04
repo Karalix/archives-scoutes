@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
   const ai = accessInstance(inst)
   const nowD = new Date()
   const nowProtected = isProtectedDoc({ yearStart: yr!.startYear, visibility: doc.visibility, status: doc.status }, ai, nowD)
-  const needsCheck = variant === 'original' || doc.status !== 'published' || doc.visibility === 'hidden' || (nowProtected && !sig.protected)
+  const needsCheck = !sig.admin && (variant === 'original' || doc.status !== 'published' || doc.visibility === 'hidden' || (nowProtected && !sig.protected))
   if (needsCheck) {
     const access = await getAccess(event)
     if (variant === 'original' && !access.admin) throw problem(403, 'Originaux réservés aux administrateurs')
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
       throw problem(403, 'Accès refusé')
     }
   }
-  if (sig.download && nowProtected) throw problem(403, 'Téléchargement interdit pour les archives récentes')
+  if (sig.download && nowProtected && !sig.admin) throw problem(403, 'Téléchargement interdit pour les archives récentes')
 
   const storage = useStorageDriver(event)
   const head = await storage.head(key)

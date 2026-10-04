@@ -12,8 +12,8 @@
     {
       "binding": "DB",
       "database_name": "archives-scoutes",
-      "migrations_table": "_hub_migrations",
-      "migrations_dir": "server/db/migrations/sqlite"
+      // migrations_dir / migrations_table sont ajoutés par NuxtHub dans la config générée (.output/server/wrangler.json)
+      "migrations_table": "_hub_migrations"
     }
   ],
   "r2_buckets": [

@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     // NUXT_SESSION_PASSWORD est lu directement par nuxt-auth-utils
     session: {
       name: 'archives-session',
+      password: '',
       maxAge: 60 * 60 * 24 * 30,
       cookie: { sameSite: 'lax', httpOnly: true, secure: true },
     },

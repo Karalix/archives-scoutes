@@ -88,7 +88,7 @@ export async function serializeDetail(doc: DocumentRow, yearStart: number, inst:
     mainUrl: doc.storageKey ? await signMediaUrl(doc.id, 'main', { protected: prot, version: doc.updatedAt }) : null,
     captionsUrl: doc.captionsKey ? await signMediaUrl(doc.id, 'captions', { protected: prot, version: doc.updatedAt }) : null,
     downloadUrl: dl && doc.storageKey ? await signMediaUrl(doc.id, 'main', { protected: false, download: true, version: doc.updatedAt }) : null,
-    streamUid: inst.settings.streamEnabled ? doc.streamUid : null,
+    streamUrl: inst.settings.streamEnabled && doc.streamUid ? await streamPlaybackToken(inst, doc.streamUid).then(t => `https://iframe.videodelivery.net/${t}`).catch(() => null) : null,
     canDownload: dl,
     isAdmin: !!ctx.admin,
   }
@@ -145,7 +145,13 @@ export async function getYearPage(inst: InstanceRow, ctx: AccessContext, startYe
   const y = await db.query.year.findFirst({ where: and(eq(schema.year.instanceId, inst.id), eq(schema.year.startYear, startYear)) })
   if (!y) throw problem(404, `Année ${scoutYearLabel(startYear)} introuvable`)
 
-  const allYears = await db.select({ s: schema.year.startYear }).from(schema.year).where(eq(schema.year.instanceId, inst.id)).orderBy(asc(schema.year.startYear))
+  // Navigation : seulement les années qui ont du contenu publié (toutes pour un admin)
+  const allYears = ctx.admin
+    ? await db.select({ s: schema.year.startYear }).from(schema.year).where(eq(schema.year.instanceId, inst.id)).orderBy(asc(schema.year.startYear))
+    : await db.selectDistinct({ s: schema.year.startYear }).from(schema.year)
+      .innerJoin(schema.document, eq(schema.document.yearId, schema.year.id))
+      .where(and(eq(schema.year.instanceId, inst.id), eq(schema.document.status, 'published'), ne(schema.document.visibility, 'hidden')))
+      .orderBy(asc(schema.year.startYear))
   const idx = allYears.findIndex(a => a.s === startYear)
   const prev = idx > 0 ? allYears[idx - 1]!.s : null
   const next = idx >= 0 && idx < allYears.length - 1 ? allYears[idx + 1]!.s : null
@@ -262,6 +268,12 @@ export interface EventInput {
   branch?: string | null
 }
 
+async function guessEventType(title: string) {
+  const inst = await getInstance()
+  const slug = slugify(title)
+  return inst.eventTypes.find(t => slug.startsWith(slugify(t))) ?? inst.eventTypes.find(t => slugify(t) === 'autre') ?? 'Autre'
+}
+
 export async function upsertEvent(actor: Actor, input: EventInput, dryRun = false) {
   const y = await findYear(input.year)
   if (!y) throw problem(422, `Année ${scoutYearLabel(input.year)} inexistante`, { hint: `Créez-la avec POST /api/v1/years {"startYear": ${input.year}}` })
@@ -283,7 +295,7 @@ export async function upsertEvent(actor: Actor, input: EventInput, dryRun = fals
     return { action: 'update', event: { ...existing, ...patch } }
   }
   const row: EventRow = {
-    id: newId(), instanceId: instanceId(), yearId: y.id, type: input.type ?? 'Camp', title: input.title, place: input.place ?? '',
+    id: newId(), instanceId: instanceId(), yearId: y.id, type: input.type ?? await guessEventType(input.title), title: input.title, place: input.place ?? '',
     startDate: input.startDate ?? null, endDate: input.endDate ?? null, branch: input.branch ?? null, coverDocumentId: null, sort: 0, createdAt: ts, updatedAt: ts,
   }
   await db.insert(schema.event).values(row)
@@ -479,6 +491,7 @@ export async function purgeDocument(actor: Actor | 'system', id: string, storage
   if (!d) return
   const keys = [d.storageKey, d.thumbKey, d.originalKey, d.captionsKey, d.displayKey].filter(Boolean) as string[]
   if (keys.length) await storage.delete(keys)
+  if (d.streamUid) await deleteStreamVideo(await getInstance(), d.streamUid).catch(() => {})
   await db.delete(schema.documentTag).where(eq(schema.documentTag.documentId, id))
   await db.delete(schema.upload).where(eq(schema.upload.documentId, id))
   await db.delete(schema.document).where(eq(schema.document.id, id))

@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
       `font-src 'self' data:${docsPage ? ' https://fonts.gstatic.com https://cdn.jsdelivr.net' : ''}`,
       'img-src \'self\' data: blob: https://*.cloudflarestream.com https://videodelivery.net',
       'media-src \'self\' blob: https://*.cloudflarestream.com https://videodelivery.net',
-      'connect-src \'self\' https://*.cloudflarestream.com https://upload.videodelivery.net',
+      'connect-src \'self\' https://*.cloudflarestream.com https://upload.videodelivery.net https://upload.cloudflarestream.com',
       'worker-src \'self\' blob:',
       'frame-src \'self\' https://*.cloudflarestream.com https://iframe.videodelivery.net',
       'object-src \'none\'',

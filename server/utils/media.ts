@@ -7,11 +7,15 @@ export const UPLOAD_TTL = 15 * 60 // URL de téléversement pour agents (I-12)
 
 export type MediaVariant = 'main' | 'display' | 'thumb' | 'captions' | 'original'
 
-function payload(docId: string, variant: string, exp: number, p: 0 | 1, dl: 0 | 1) {
-  return `m:${docId}:${variant}:${exp}:${p}:${dl}`
+function payload(docId: string, variant: string, exp: number, p: 0 | 1, dl: 0 | 1, a: 0 | 1) {
+  return `m:${docId}:${variant}:${exp}:${p}:${dl}:${a}`
 }
 
-export async function signMediaUrl(docId: string, variant: MediaVariant, opts: { protected: boolean, download?: boolean, version?: number }) {
+/**
+ * opts.admin : URL émise pour un administrateur ou un jeton d'API (brouillons, originaux, export) ;
+ * la route média ne revérifie alors pas la session, la signature faisant foi.
+ */
+export async function signMediaUrl(docId: string, variant: MediaVariant, opts: { protected: boolean, download?: boolean, version?: number, admin?: boolean }) {
   const now = Math.floor(Date.now() / 1000)
   // Expiration arrondie pour que l'URL reste stable (cache navigateur / CDN)
   const exp = opts.protected
@@ -19,19 +23,21 @@ export async function signMediaUrl(docId: string, variant: MediaVariant, opts: {
     : Math.ceil((now + PUBLIC_TTL) / 86400) * 86400
   const p = opts.protected ? 1 : 0
   const dl = opts.download ? 1 : 0
-  const sig = await hmac(signingKey(), payload(docId, variant, exp, p, dl))
+  const a = opts.admin ? 1 : 0
+  const sig = await hmac(signingKey(), payload(docId, variant, exp, p, dl, a))
   const v = opts.version ? `&v=${opts.version}` : ''
-  return `/m/${docId}/${variant}?exp=${exp}&p=${p}${dl ? '&dl=1' : ''}${v}&sig=${sig}`
+  return `/m/${docId}/${variant}?exp=${exp}&p=${p}${dl ? '&dl=1' : ''}${a ? '&a=1' : ''}${v}&sig=${sig}`
 }
 
 export async function verifyMediaSignature(docId: string, variant: string, q: Record<string, any>) {
   const exp = Number(q.exp)
   const p = q.p === '1' ? 1 : 0
   const dl = q.dl === '1' ? 1 : 0
+  const a = q.a === '1' ? 1 : 0
   if (!exp || exp < Date.now() / 1000) return null
-  const expected = await hmac(signingKey(), payload(docId, variant, exp, p, dl))
+  const expected = await hmac(signingKey(), payload(docId, variant, exp, p, dl, a))
   if (!timingSafeEqual(expected, String(q.sig ?? ''))) return null
-  return { protected: p === 1, download: dl === 1, exp }
+  return { protected: p === 1, download: dl === 1, admin: a === 1, exp }
 }
 
 /** URL de téléversement signée (I-12, I-13) : une partie d'un multipart, valable 15 min. */

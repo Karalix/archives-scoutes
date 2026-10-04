@@ -33,6 +33,16 @@ export async function rateLimit(event: H3Event, key: string, opts: { limit: numb
   }
 }
 
+/** Refuse si la clé est actuellement bloquée, sans compter de tentative. */
+export async function assertNotRateLimited(event: H3Event, key: string) {
+  const row = await db.query.rateLimit.findFirst({ where: eq(schema.rateLimit.key, key) })
+  if (row?.blockedUntil && row.blockedUntil > Date.now()) {
+    const retry = Math.ceil((row.blockedUntil - Date.now()) / 1000)
+    setHeader(event, 'Retry-After', retry)
+    throw problem(429, `Trop de tentatives. Réessayez dans ${Math.ceil(retry / 60)} min.`, { retryAfter: retry })
+  }
+}
+
 export async function resetRateLimit(key: string) {
   await db.delete(schema.rateLimit).where(eq(schema.rateLimit.key, key))
 }

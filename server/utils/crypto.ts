@@ -57,7 +57,8 @@ export function signingKey(): string {
 }
 
 export function clientIp(event: H3Event): string {
-  return getHeader(event, 'cf-connecting-ip') || getRequestIP(event, { xForwardedFor: true }) || 'unknown'
+  // Derrière Cloudflare, cf-connecting-ip est fiable ; X-Forwarded-For n'est jamais pris en compte (falsifiable)
+  return getHeader(event, 'cf-connecting-ip') || getRequestIP(event) || 'unknown'
 }
 
 /** IP hachée (L-05) : jamais stockée en clair. */
